@@ -150,6 +150,10 @@ add_executable(mod2sng ${MOD2SNG_SOURCES})
 add_executable(ins2snd2 ${INS2SND2_SOURCES})
 add_executable(sngspli2 ${SNGSPLI2_SOURCES})
 
+add_custom_target(goatdata DEPENDS goatdata.c)
+add_dependencies(goattrk2 goatdata)
+add_dependencies(gt2reloc goatdata)
+
 target_include_directories(mod2sng PUBLIC ${SDL2_INCLUDE_DIRS})
 target_include_directories(ins2snd2 PUBLIC ${SDL2_INCLUDE_DIRS})
 target_include_directories(sngspli2 PUBLIC ${SDL2_INCLUDE_DIRS})
