@@ -194,8 +194,10 @@ if (ALSA_FOUND)
 endif(ALSA_FOUND)
 
 if(APPLE)
+    find_library(COREMIDI CoreMIDI)
+    find_library(COREAUDIO CoreAudio)
     target_compile_definitions(goattrk2 PUBLIC __MACOSX_CORE__)
-    target_link_libraries(goattrk2 CoreMIDI CoreAudio CoreFoundation)
+    target_link_libraries(goattrk2 ${CoreMIDI} ${CoreAudio} CoreFoundation)
     set(use_midi ON)
 endif(APPLE)
 
