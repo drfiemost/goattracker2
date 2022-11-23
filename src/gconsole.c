@@ -330,21 +330,18 @@ void fliptoscreen(void)
   // Mark previous mousecursor area changed if mouse moved
   if ((mousepixelx != oldmousepixelx) || (mousepixely != oldmousepixely))
   {
-    if ((oldmousepixelx >= 0) && (oldmousepixely >= 0))
+    int sy = oldmousepixely / fontheight;
+    int ey = (oldmousepixely + mousesizey - 1) / fontheight;
+    int sx = oldmousepixelx / fontwidth;
+    int ex = (oldmousepixelx + mousesizex - 1) / fontwidth;
+
+    if (ey >= MAX_ROWS) ey = MAX_ROWS - 1;
+    if (ex >= MAX_COLUMNS) ex = MAX_COLUMNS - 1;
+
+    for (y = sy; y <= ey; y++)
     {
-      int sy = oldmousepixely / fontheight;
-      int ey = (oldmousepixely + mousesizey - 1) / fontheight;
-      int sx = oldmousepixelx / fontwidth;
-      int ex = (oldmousepixelx + mousesizex - 1) / fontwidth;
-
-      if (ey >= MAX_ROWS) ey = MAX_ROWS - 1;
-      if (ex >= MAX_COLUMNS) ex = MAX_COLUMNS - 1;
-
-      for (y = sy; y <= ey; y++)
-      {
-        for (x = sx; x <= ex; x++)
-          prevscrbuffer[y*MAX_COLUMNS+x] = 0xffffffff;
-      }
+      for (x = sx; x <= ex; x++)
+        prevscrbuffer[y*MAX_COLUMNS+x] = 0xffffffff;
     }
   }
 
