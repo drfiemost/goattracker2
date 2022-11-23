@@ -34,7 +34,7 @@ jobs:
         mkdir build
         cd build
         cmake -G 'MSYS Makefiles' -DCMAKE_BUILD_TYPE=Release -DSTATIC=ON ..
-        make
+        cmake --build .
         cp ../readme.* ../authors ../copying ../goat_tracker_commands.pdf .
         zip gt2-unofficial_build-${{ steps.get_tag_name.outputs.tagname }}.zip *.exe readme.* authors copying goat_tracker_commands.pdf
     - uses: svenstaro/upload-release-action@v1-release
