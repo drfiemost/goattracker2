@@ -134,16 +134,16 @@ target_include_directories(datafile PUBLIC ${SDL2_INCLUDE_DIRS})
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/src/goattrk2.dat
-  COMMAND datafile ${CMAKE_CURRENT_BINARY_DIR}/src/goattrk2.dat ${CMAKE_CURRENT_SOURCE_DIR}/src/goattrk2.seq
+  COMMAND datafile ${CMAKE_CURRENT_BINARY_DIR}/src/goattrk2.dat goattrk2.seq
   DEPENDS datafile
   WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   )
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/src/goatdata.c
-  COMMAND dat2inc ${CMAKE_CURRENT_BINARY_DIR}/src/goattrk2.dat ${CMAKE_CURRENT_BINARY_DIR}/src/goatdata.c
+  COMMAND dat2inc goattrk2.dat goatdata.c
   DEPENDS dat2inc ${CMAKE_CURRENT_BINARY_DIR}/src/goattrk2.dat
-  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src
+  WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/src
   )
 
 add_executable(goattrk2 ${GOATTRK2_SOURCES})
