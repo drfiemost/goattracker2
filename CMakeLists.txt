@@ -9,7 +9,7 @@ IF("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
 ENDIF()
 
 set(GOATTRK2_SOURCES
-    ${CMAKE_CURRENT_BINARY_DIR}/goatdata.c
+    ${CMAKE_CURRENT_BINARY_DIR}/src/goatdata.c
     src/goattrk2.c
     src/gsong.c
     src/gorder.c
@@ -65,7 +65,7 @@ endif(MINGW)
 # it would be nice not having to link things like resid, however the source is
 # not ready for that
 set(GT2RELOC_SOURCES
-    ${CMAKE_CURRENT_BINARY_DIR}/goatdata.c
+    ${CMAKE_CURRENT_BINARY_DIR}/src/goatdata.c
     src/gt2reloc.c
     src/gsong.c
     src/gorder.c
@@ -133,15 +133,17 @@ add_executable(dat2inc src/bme/dat2inc.c)
 target_include_directories(datafile PUBLIC ${SDL2_INCLUDE_DIRS})
 
 add_custom_command(
-  OUTPUT goattrk2.dat
-  COMMAND datafile goattrk2.dat ${CMAKE_CURRENT_SOURCE_DIR}/src/goattrk2.seq
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/src/goattrk2.dat
+  COMMAND datafile ${CMAKE_CURRENT_BINARY_DIR}/src/goattrk2.dat ${CMAKE_CURRENT_SOURCE_DIR}/src/goattrk2.seq
   DEPENDS datafile
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   )
 
 add_custom_command(
-  OUTPUT goatdata.c
-  COMMAND dat2inc goattrk2.dat goatdata.c
-  DEPENDS dat2inc goattrk2.dat
+  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/src/goatdata.c
+  COMMAND dat2inc ${CMAKE_CURRENT_BINARY_DIR}/src/goattrk2.dat ${CMAKE_CURRENT_BINARY_DIR}/src/goatdata.c
+  DEPENDS dat2inc ${CMAKE_CURRENT_BINARY_DIR}/src/goattrk2.dat
+  WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}/src
   )
 
 add_executable(goattrk2 ${GOATTRK2_SOURCES})
@@ -150,7 +152,7 @@ add_executable(mod2sng ${MOD2SNG_SOURCES})
 add_executable(ins2snd2 ${INS2SND2_SOURCES})
 add_executable(sngspli2 ${SNGSPLI2_SOURCES})
 
-add_custom_target(goatdata DEPENDS goatdata.c)
+add_custom_target(goatdata DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/src/goatdata.c)
 add_dependencies(goattrk2 goatdata)
 add_dependencies(gt2reloc goatdata)
 
