@@ -7,14 +7,14 @@ int gfx_lock(void);
 void gfx_unlock(void);
 void gfx_flip(void);
 void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bottom);
-void gfx_setmaxspritefiles(int num);
+void gfx_setmaxspritefiles(unsigned num);
 void gfx_setmaxcolors(int num);
 int gfx_loadpalette(char *name);
 void gfx_calcpalette(int fade, int radd, int gadd, int badd);
 void gfx_setpalette(void);
 int gfx_loadblocks(char *name);
-int gfx_loadsprites(int num, char *name);
-void gfx_freesprites(int num);
+int gfx_loadsprites(unsigned num, char *name);
+void gfx_freesprites(unsigned num);
 
 void gfx_drawsprite(int x, int y, unsigned num);
 

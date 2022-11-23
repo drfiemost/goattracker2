@@ -22,14 +22,14 @@ int gfx_lock(void);
 void gfx_unlock(void);
 void gfx_flip(void);
 void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bottom);
-void gfx_setmaxspritefiles(int num);
+void gfx_setmaxspritefiles(unsigned num);
 void gfx_setmaxcolors(int num);
 int gfx_loadpalette(char *name);
 void gfx_calcpalette(int fade, int radd, int gadd, int badd);
 void gfx_setpalette(void);
 int gfx_loadblocks(char *name);
-int gfx_loadsprites(int num, char *name);
-void gfx_freesprites(int num);
+int gfx_loadsprites(unsigned num, char *name);
+void gfx_freesprites(unsigned num);
 
 void gfx_drawsprite(int x, int y, unsigned num);
 void gfx_getspriteinfo(unsigned num);
@@ -39,10 +39,10 @@ int gfx_redraw = 0;
 int gfx_fullscreen = 0;
 int gfx_scanlinemode = 0;
 int gfx_preventswitch = 0;
-int gfx_virtualxsize;
-int gfx_virtualysize;
-int gfx_windowxsize;
-int gfx_windowysize;
+unsigned gfx_virtualxsize;
+unsigned gfx_virtualysize;
+unsigned gfx_windowxsize;
+unsigned gfx_windowysize;
 int gfx_blockxsize = 16;
 int gfx_blockysize = 16;
 int spr_xsize = 0;
@@ -66,7 +66,7 @@ static int gfx_clipbottom;
 static int gfx_clipleft;
 static int gfx_clipright;
 static int gfx_maxcolors = MAX_COLORS;
-static int gfx_maxspritefiles = 0;
+static unsigned gfx_maxspritefiles = 0;
 static SPRITEHEADER **gfx_spriteheaders = NULL;
 static Uint8 **gfx_spritedata = NULL;
 static unsigned *gfx_spriteamount = NULL;
@@ -292,10 +292,8 @@ void gfx_setclipregion(unsigned left, unsigned top, unsigned right, unsigned bot
     gfx_clipbottom = bottom;
 }
 
-void gfx_setmaxspritefiles(int num)
+void gfx_setmaxspritefiles(unsigned num)
 {
-    if (num <= 0) return;
-
     if (gfx_spriteheaders) return;
 
     gfx_spriteheaders = malloc(num * sizeof(Uint8 *));
@@ -303,7 +301,7 @@ void gfx_setmaxspritefiles(int num)
     gfx_spriteamount = malloc(num * sizeof(unsigned));
     if ((gfx_spriteheaders) && (gfx_spritedata) && (gfx_spriteamount))
     {
-        int c;
+        unsigned c;
 
         gfx_maxspritefiles = num;
         for (c = 0; c < num; c++)
@@ -316,9 +314,10 @@ void gfx_setmaxspritefiles(int num)
     else gfx_maxspritefiles = 0;
 }
 
-int gfx_loadsprites(int num, char *name)
+int gfx_loadsprites(unsigned num, char *name)
 {
-    int handle, size, c;
+    unsigned c;
+    int handle, size;
     int datastart;
 
     if (!gfx_spriteheaders)
@@ -373,7 +372,7 @@ int gfx_loadsprites(int num, char *name)
     return BME_OK;
 }
 
-void gfx_freesprites(int num)
+void gfx_freesprites(unsigned num)
 {
     if (num >= gfx_maxspritefiles) return;
 
@@ -391,7 +390,8 @@ void gfx_freesprites(int num)
 
 void gfx_copyscreen8(Uint8  *destaddress, Uint8  *srcaddress, unsigned pitch)
 {
-    int c, d;
+    unsigned c;
+    int d;
 
     switch(gfx_scanlinemode)
     {
