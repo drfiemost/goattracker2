@@ -132,6 +132,8 @@ add_executable(dat2inc src/bme/dat2inc.c)
 
 target_include_directories(datafile PUBLIC ${SDL2_INCLUDE_DIRS})
 
+file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
+
 add_custom_command(
   OUTPUT ${CMAKE_BINARY_DIR}/src/goattrk2.dat
   COMMAND datafile ${CMAKE_BINARY_DIR}/src/goattrk2.dat goattrk2.seq
