@@ -20,7 +20,7 @@ char timechar[] = {':', ' '};
 
 int timemin = 0;
 int timesec = 0;
-int timeframe = 0;
+unsigned timeframe = 0;
 
 void initcolorscheme(int dark)
 {

@@ -184,7 +184,7 @@ typedef struct
 
 typedef struct
 {
-  unsigned rawcode;
+  int rawcode;
   char *name;
 } KEY;
 

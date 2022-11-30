@@ -15,7 +15,7 @@ typedef struct
   unsigned char note;
   unsigned char lastnote;
   unsigned char newnote;
-  unsigned pattptr;
+  int pattptr;
   unsigned char pattnum;
   unsigned char songptr;
   unsigned char repeat;

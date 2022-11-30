@@ -161,7 +161,7 @@ void noteOff(unsigned char note) {
 }
 
 void snd_midi_process(double timeStamp, const unsigned char *message, size_t messageSize, void *userData) {
-    int i;
+    size_t i;
 
     for (i = 0; i < messageSize; i++) {
          //printf("size: %u: %02X %u %u\n", messageSize,
