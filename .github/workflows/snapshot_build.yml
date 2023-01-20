@@ -28,7 +28,7 @@ jobs:
         ref: ${{ github.ref }}
     - name: Get the tag name
       id: get_tag_name
-      run: echo ::set-output name=tagname::${GITHUB_REF#refs/tags/}
+      run: echo "tagname=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
     - name: build
       run: |
         mkdir build
@@ -37,7 +37,7 @@ jobs:
         cmake --build .
         cp ../readme.* ../authors ../copying ../goat_tracker_commands.pdf .
         zip gt2-unofficial_build-${{ steps.get_tag_name.outputs.tagname }}.zip *.exe readme.* authors copying goat_tracker_commands.pdf
-    - uses: svenstaro/upload-release-action@v1-release
+    - uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: build/gt2-unofficial_build-${{ steps.get_tag_name.outputs.tagname }}.zip
