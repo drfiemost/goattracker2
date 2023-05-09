@@ -295,6 +295,7 @@ int main(int argc, char **argv)
             } else {
                 playerversion |= PLAYER_NOOPTIMIZATION;
             }
+        break;
         // 6: Full buffering
         case 'J':
             if (argv[c][2] == '1') {
