@@ -228,6 +228,7 @@ int main(int argc, char **argv)
         }
         if (strcmp(argv[c], "--help"))
             break;
+        /* fall through */
         case '?':
         if(argv[c][2]=='?')
         {
@@ -1274,6 +1275,7 @@ void clear(void)
       {
         case KEY_LEFT:
         defaultpatternlength -= 7;
+        /* fall through */
         case KEY_DOWN:
         defaultpatternlength--;
         if (defaultpatternlength < 1) defaultpatternlength = 1;
@@ -1281,6 +1283,7 @@ void clear(void)
 
         case KEY_RIGHT:
         defaultpatternlength += 7;
+        /* fall through */
         case KEY_UP:
         defaultpatternlength++;
         if (defaultpatternlength > MAX_PATTROWS) defaultpatternlength = MAX_PATTROWS;
@@ -1355,7 +1358,7 @@ void editadsr(void)
     {
       case KEY_F7:
       if (!shiftpressed) break;
-
+      /* fall through */
       case KEY_ESC:
       case KEY_ENTER:
       case KEY_TAB:
@@ -1366,6 +1369,7 @@ void editadsr(void)
 
       case KEY_BACKSPACE:
       if (!eacolumn) break;
+      /* fall through */
       case KEY_LEFT:
       eacolumn--;
       break;

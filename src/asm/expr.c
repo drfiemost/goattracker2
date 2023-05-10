@@ -57,6 +57,7 @@ void expr_dump(int level, struct expr *e)
     case vNEG:
         LOG(level, ("expr %p unary op %d, referring to %p\n",
                     (void*)e, e->expr_op, (void*)e->type.arg1));
+        /* fall through */
     case LNOT:
         LOG(level, ("expr %p unary op %d, referring to %p\n",
                     (void*)e, e->expr_op, (void*)e->type.arg1));

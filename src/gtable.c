@@ -238,7 +238,7 @@ void tablecommands(void)
         rtable[etnum][etpos] = note;
       }
     }
-
+    /* fall through */
     case KEY_L:
     if (etnum == PTBL)
     {
@@ -369,6 +369,7 @@ void tablecommands(void)
         // Negate pulse or filter speed
         case FTBL:
         if (!ltable[etnum][etpos]) break;
+        /* fall through */
         case PTBL:
         if (ltable[etnum][etpos] < 0x80)
           rtable[etnum][etpos] = (rtable[etnum][etpos] ^ 0xff) + 1;

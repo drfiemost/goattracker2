@@ -377,6 +377,7 @@ int fileselector(char *name, char *path, char *filter, char *title, int filemode
 
         case 1:
         chdir(path);
+        /* fall through */
         case 2:
         filemode = 0;
         goto NEWPATH;

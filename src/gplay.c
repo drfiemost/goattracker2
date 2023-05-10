@@ -774,6 +774,7 @@ void playroutine(void)
             cptr->vibdelay--;
             break;
           }
+          /* fall through */
           case CMD_VIBRATO:
           {
             unsigned short speed = 0;
