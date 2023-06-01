@@ -25,6 +25,8 @@
 #define RESID_INLINE inline
 #define RESID_BRANCH_HINTS 1
 
+//#define NEW_8580_FILTER 1
+
 // Compiler specifics.
 #define HAVE_BOOL 1
 #define HAVE_BUILTIN_EXPECT 1
@@ -64,7 +66,6 @@ typedef unsigned int reg8;
 typedef unsigned int reg12;
 typedef unsigned int reg16;
 typedef unsigned int reg24;
-typedef unsigned int reg32;
 
 typedef int cycle_count;
 typedef short short_point[2];
@@ -72,8 +73,12 @@ typedef double double_point[2];
 
 enum chip_model { MOS6581, MOS8580 };
 
-enum sampling_method { SAMPLE_FAST, SAMPLE_INTERPOLATE,
-                       SAMPLE_RESAMPLE, SAMPLE_RESAMPLE_FASTMEM };
+enum sampling_method {
+    SAMPLE_FAST,
+    SAMPLE_INTERPOLATE,
+    SAMPLE_RESAMPLE,
+    SAMPLE_RESAMPLE_FASTMEM
+};
 
 //} // namespace reSID
 
