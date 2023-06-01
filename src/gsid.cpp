@@ -48,20 +48,20 @@ void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsign
   switch(interpolate)
   {
     case 0:
-    if (sid) sid->set_sampling_parameters(clockrate, SAMPLE_FAST, speed);
+    if (sid) sid->set_sampling_parameters(clockrate, reSID::SAMPLE_FAST, speed);
     break;
 
     case 1:
-    if (sid) sid->set_sampling_parameters(clockrate, SAMPLE_INTERPOLATE, speed);
+    if (sid) sid->set_sampling_parameters(clockrate, reSID::SAMPLE_INTERPOLATE, speed);
     break;
 
     case 2:
-    if (sid) sid->set_sampling_parameters(clockrate, SAMPLE_RESAMPLE, speed);
+    if (sid) sid->set_sampling_parameters(clockrate, reSID::SAMPLE_RESAMPLE, speed);
     break;
 
     case 3:
     default:
-    if (sid) sid->set_sampling_parameters(clockrate, SAMPLE_RESAMPLE_FASTMEM, speed);
+    if (sid) sid->set_sampling_parameters(clockrate, reSID::SAMPLE_RESAMPLE_FASTMEM, speed);
     break;
   }
 
@@ -72,11 +72,11 @@ void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsign
   }
   if (m == 1)
   {
-    if (sid) sid->set_chip_model(MOS8580);
+    if (sid) sid->set_chip_model(reSID::MOS8580);
   }
   else
   {
-    if (sid) sid->set_chip_model(MOS6581);
+    if (sid) sid->set_chip_model(reSID::MOS6581);
   }
 }
 

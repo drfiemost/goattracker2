@@ -27,7 +27,8 @@ set(GOATTRK2_SOURCES
     src/resid/dac.cc
     src/resid/envelope.cc
     src/resid/extfilt.cc
-    src/resid/filter.cc
+#     src/resid/filter.cc
+    src/resid/filter8580new.cc
     src/resid/pot.cc
     src/resid/sid.cc
     src/resid/wave.cc
@@ -82,7 +83,8 @@ set(GT2RELOC_SOURCES
     src/resid/dac.cc
     src/resid/envelope.cc
     src/resid/extfilt.cc
-    src/resid/filter.cc
+#     src/resid/filter.cc
+    src/resid/filter8580new.cc
     src/resid/pot.cc
     src/resid/sid.cc
     src/resid/wave.cc

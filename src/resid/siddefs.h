@@ -25,7 +25,7 @@
 #define RESID_INLINE inline
 #define RESID_BRANCH_HINTS 1
 
-//#define NEW_8580_FILTER 1
+#define NEW_8580_FILTER 1
 
 // Compiler specifics.
 #define HAVE_BOOL 1
@@ -52,7 +52,7 @@ const bool false = 0;
 #define unlikely(x)    (x)
 #endif
 
-//namespace reSID {
+namespace reSID {
 
 // We could have used the smallest possible data type for each SID register,
 // however this would give a slower engine because of data type conversions.
@@ -80,7 +80,7 @@ enum sampling_method {
     SAMPLE_RESAMPLE_FASTMEM
 };
 
-//} // namespace reSID
+} // namespace reSID
 
 extern "C"
 {
