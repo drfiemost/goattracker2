@@ -1065,7 +1065,7 @@ the status bar) you can disable realtime pattern command skipping on tick 0.
   2) Use pattern command 900 to stop pulse execution
 
 - If you have a realtime command (vibrato/portamento), you can put "one-shot"
-  commands 5XY-FXY inbetween and the realtime command will be unaffected. An
+  commands 5XY-FXY in between and the realtime command will be unaffected. An
   example:
 
   C-4 01000
@@ -1968,7 +1968,7 @@ v2.71     - Added keycode fix patch from Valerio Cannone.
           - Added /G command line option for setting A-4 pitch.
           
 v2.72     - Fixed incorrect transpose range determination in the relocator.
-          - Fixed crash in jam mode whan an illegal pattern command was executed
+          - Fixed crash in jam mode when an illegal pattern command was executed
             from the wavetable.
             
 v2.73     - Reverted to old playroutine timing.
