@@ -26,6 +26,7 @@
 
 #include "sid.h"
 #include <cmath>
+#include <cassert>
 
 #include <iostream>
 #include <fstream>
@@ -588,7 +589,7 @@ bool SID::set_sampling_parameters(double clock_freq, sampling_method method,
   if (method == SAMPLE_RESAMPLE || method == SAMPLE_RESAMPLE_FASTMEM)
   {
     // Check whether the sample ring buffer would overfill.
-    if (FIR_N*clock_freq/sample_freq >= RINGSIZE) {
+    if (static_cast<int>(static_cast<double>(FIR_N)*clock_freq/sample_freq) >= RINGSIZE) {
       return false;
     }
 
@@ -671,6 +672,9 @@ bool SID::set_sampling_parameters(double clock_freq, sampling_method method,
   // The filter length must be an odd number (sinc is symmetric about x = 0).
   int fir_N_new = int(N*f_cycles_per_sample) + 1;
   fir_N_new |= 1;
+
+  // Check whether the sample ring buffer would overflow.
+  assert(fir_N_new < RINGSIZE);
 
   // We clamp the filter table resolution to 2^n, making the fixed point
   // sample_offset a whole multiple of the filter table resolution.
