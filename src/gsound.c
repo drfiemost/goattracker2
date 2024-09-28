@@ -81,7 +81,7 @@ void* exsidfd = NULL;
 unsigned exsidDelay = 0;
 #endif
 
-int sound_init(unsigned b, unsigned mr, unsigned writer, unsigned hardsid, unsigned m, unsigned ntsc, unsigned multiplier, unsigned catweasel, unsigned interpolate, unsigned customclockrate, unsigned exsid)
+int sound_init(unsigned b, unsigned mr, unsigned writer, unsigned hardsid, unsigned m, unsigned ntsc, unsigned multiplier, unsigned catweasel, unsigned interpolate, unsigned customclockrate, unsigned exsid, float filterbias)
 {
   int c;
 
@@ -262,7 +262,7 @@ int sound_init(unsigned b, unsigned mr, unsigned writer, unsigned hardsid, unsig
     firsttimeinit = 0;
   }
   playspeed = snd_mixrate;
-  sid_init(playspeed, m, ntsc, interpolate, customclockrate);
+  sid_init(playspeed, m, ntsc, interpolate, customclockrate, filterbias);
 
   snd_player = &sound_playrout;
   snd_setcustommixer(sound_mixer);

@@ -8,7 +8,7 @@
 extern "C" {
 #endif
 
-void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsigned customclockrate);
+void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsigned customclockrate, float filterbias);
 int sid_fillbuffer(short *ptr, int samples);
 unsigned char sid_getorder(unsigned char index);
 

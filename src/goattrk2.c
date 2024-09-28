@@ -66,6 +66,7 @@ unsigned residdelay = 0;
 unsigned hardsidbufinteractive = 20;
 unsigned hardsidbufplayback = 400;
 float basepitch = 0.0f;
+float filterbias = 0.5f;
 float equaldivisionsperoctave = 12.0f;
 int tuningcount = 0;
 double tuning[96];
@@ -109,7 +110,8 @@ char* usage[] = {
     "-Hxx Use HardSID (0 = off, 1 = HardSID ID0 2 = HardSID ID1 etc.)",
     "-Ixx Set reSID resampling mode (0 = fast, 1 = interpolation, 2 = resampling, 3 = fastmem resampling) DEFAULT=2",
     "-Jxx Set special note names (2 chars for every note in an octave/cycle, e.g. C-DbD-EbE-F-GbG-AbA-BbB-)",
-    "-Kxx Note-entry mode (0 = Protracker, 1 = DMC, 2 = Janko) DEFAULT=Protracker",    "-Lxx SID memory location in hex. DEFAULT=D400",
+    "-Kxx Note-entry mode (0 = Protracker, 1 = DMC, 2 = Janko) DEFAULT=Protracker",
+    "-Lxx SID memory location in hex. DEFAULT=D400",
     "-Mxx Set sound mixing rate DEFAULT=44100",
     "-Oxx Set pulseoptimization/skipping (0 = off, 1 = on) DEFAULT=on",
     "-Qxx Set equal divisions per octave (12 = default, 8.2019143 = Bohlen-Pierce)",
@@ -121,6 +123,7 @@ char* usage[] = {
     "-Xxx Set window type (0 = window, 1 = fullscreen) DEFAULT=window",
     "-Yxx Path to a Scala tuning file .scl",
     "-Zxx Set random reSID write delay in cycles (0 = off) DEFAULT=off",
+    "-bxx Set filter bias (0.0 (dark) to 1.0 (light))",
     "-wxx Set window scale factor (1 = no scaling, 2 to 4 = 2 to 4 times bigger window) DEFAULT=1",
     "-xxx Use exdSID (0 = off, 1 = on)",
     "-N   Use NTSC timing",
@@ -198,6 +201,7 @@ int main(int argc, char **argv)
     getparam(configfile, (unsigned*)&win_fullscreen);
     getparam(configfile, &bigwindow);
     getfloatparam(configfile, &basepitch);
+    getfloatparam(configfile, &filterbias);
     getfloatparam(configfile, &equaldivisionsperoctave);
     getstringparam(configfile, specialnotenames);
     getstringparam(configfile, scalatuningfilepath);
@@ -342,6 +346,10 @@ int main(int argc, char **argv)
         case 'G':
         sscanf(&argv[c][2], "%f", &basepitch);
         break;
+
+        case 'b':
+        sscanf(&argv[c][2], "%f", &filterbias);
+        break;
  
         case 'Q':
         sscanf(&argv[c][2], "%f", &equaldivisionsperoctave);
@@ -404,6 +412,8 @@ int main(int argc, char **argv)
   if (customclockrate < 100) customclockrate = 0;
   if (bigwindow < 1) bigwindow = 1;
   if (bigwindow > 4) bigwindow = 4;
+  if (filterbias < 0.0) filterbias = 0.0;
+  else if (filterbias > 1.0) filterbias = 1.0;
 
   // Read Scala tuning file
   if (scalatuningfilepath[0] != '0' && scalatuningfilepath[1] != '\0')
@@ -432,7 +442,7 @@ int main(int argc, char **argv)
   clearsong(1,1,1,1,1);
 
   // Init sound
-  if (!sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid))
+  if (!sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias))
   {
     printtextc(MAX_ROWS/2-1,15,"Sound init failed. Press any key to run without sound (notice that song timer won't start)");
     waitkeynoupdate();
@@ -507,6 +517,7 @@ int main(int argc, char **argv)
                         ";Window type (0 = window, 1 = fullscreen)\n%d\n\n"
                         ";window scale factor (1 = no scaling, 2 to 4 = 2 to 4 times bigger window)\n%d\n\n"
                         ";Base pitch of A-4 in Hz (0 = use default frequencytable)\n%f\n\n"
+                        ";Filter bias (0.0 (dark) to 1.0 (light))\n%f\n\n"
                         ";Equal divisions per octave (12 = default, 8.2019143 = Bohlen-Pierce)\n%f\n\n"
                         ";Special note names (2 chars for every note in an octave/cycle)\n%s\n\n"
                         ";Path to a Scala tuning file .scl\n%s\n\n"
@@ -538,6 +549,7 @@ int main(int argc, char **argv)
     win_fullscreen,
     bigwindow,
     basepitch,
+    filterbias,
     equaldivisionsperoctave,
     specialnotenames,
     scalatuningfilepath,
@@ -883,12 +895,12 @@ void mousecommands(void)
       if ((mousex >= 49+10) && (mousex <= 52+10))
       {
         ntsc ^= 1;
-        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid);
+        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias);
       }
       if ((mousex >= 54+10) && (mousex <= 57+10))
       {
         sidmodel ^= 1;
-        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid);
+        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias);
       }
       if ((mousex >= 62+10) && (mousex <= 65+10)) editadsr();
       if ((mousex >= 67+10) && (mousex <= 68+10)) prevmultiplier();
@@ -1108,7 +1120,7 @@ void generalcommands(void)
     else
     {
       sidmodel ^= 1;
-      sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid);
+      sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias);
     }
     break;
 
@@ -1476,7 +1488,7 @@ void prevmultiplier(void)
   if (multiplier > 0)
   {
     multiplier--;
-    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid);
+    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias);
   }
 }
 
@@ -1485,7 +1497,7 @@ void nextmultiplier(void)
   if (multiplier < 16)
   {
     multiplier++;
-    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid);
+    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias);
   }
 }
 

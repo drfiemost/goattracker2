@@ -31,7 +31,7 @@ reSID::SID *sid = 0;
 extern unsigned residdelay;
 extern unsigned adparam;
 
-void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsigned customclockrate)
+void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsigned customclockrate, float filterbias)
 {
   int c;
 
@@ -66,6 +66,7 @@ void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsign
   }
 
   if (sid) sid->reset();
+  if (sid) sid->adjust_filter_bias((filterbias-0.5)*10.);
   for (c = 0; c < NUMSIDREGS; c++)
   {
     sidreg[c] = 0x00;
