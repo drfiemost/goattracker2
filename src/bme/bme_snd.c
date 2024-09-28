@@ -134,6 +134,11 @@ int snd_init_jack() {
     if (use_jack_audio) {
         output_port = jack_port_register(client, "playback",
             JACK_DEFAULT_AUDIO_TYPE, JackPortIsOutput, 0);
+
+        if (!output_port) {
+            fprintf(stderr, "failed to register port\n");
+            return BME_ERROR;
+        }
     }
 
     if (jack_activate(client)) {
@@ -189,6 +194,12 @@ int snd_init_midi() {
     RtMidiInPtr midi_device = rtmidi_in_create(RTMIDI_API_UNSPECIFIED, "goattracker2", 100);
     if (!midi_device->ok) {
         fprintf(stderr, "failed to activate midi: %s\n", midi_device->msg);
+        return BME_ERROR;
+    }
+
+    unsigned int ports = rtmidi_get_port_count(midi_device);
+    if (!ports) {
+        fprintf(stderr, "no available ports\n");
         return BME_ERROR;
     }
 
