@@ -41,10 +41,10 @@ struct RtMidiWrapper {
     void* ptr;
     void* data;
 
-    //! True when the last function call was OK. 
+    //! True when the last function call was OK.
     bool  ok;
 
-    //! If an error occured (ok != true), set to an error message.
+    //! If an error occurred (ok != true), set to an error message.
     const char* msg;
 };
 
@@ -65,6 +65,9 @@ enum RtMidiApi {
     RTMIDI_API_UNIX_JACK,      /*!< The Jack Low-Latency MIDI Server API. */
     RTMIDI_API_WINDOWS_MM,     /*!< The Microsoft Multimedia MIDI API. */
     RTMIDI_API_RTMIDI_DUMMY,   /*!< A compilable but non-functional API. */
+    RTMIDI_API_WEB_MIDI_API,   /*!< W3C Web MIDI API. */
+    RTMIDI_API_WINDOWS_UWP,    /*!< The Microsoft Universal Windows Platform MIDI API. */
+    RTMIDI_API_ANDROID,        /*!< The Android MIDI API. */
     RTMIDI_API_NUM             /*!< Number of values in this enum. */
 };
 
@@ -75,12 +78,12 @@ enum RtMidiErrorType {
   RTMIDI_ERROR_UNSPECIFIED,       /*!< The default, unspecified error type. */
   RTMIDI_ERROR_NO_DEVICES_FOUND,  /*!< No devices found on system. */
   RTMIDI_ERROR_INVALID_DEVICE,    /*!< An invalid device ID was specified. */
-  RTMIDI_ERROR_MEMORY_ERROR,      /*!< An error occured during memory allocation. */
+  RTMIDI_ERROR_MEMORY_ERROR,      /*!< An error occurred during memory allocation. */
   RTMIDI_ERROR_INVALID_PARAMETER, /*!< An invalid parameter was specified to a function. */
   RTMIDI_ERROR_INVALID_USE,       /*!< The function was called incorrectly. */
-  RTMIDI_ERROR_DRIVER_ERROR,      /*!< A system driver error occured. */
-  RTMIDI_ERROR_SYSTEM_ERROR,      /*!< A system error occured. */
-  RTMIDI_ERROR_THREAD_ERROR       /*!< A thread error occured. */
+  RTMIDI_ERROR_DRIVER_ERROR,      /*!< A system driver error occurred. */
+  RTMIDI_ERROR_SYSTEM_ERROR,      /*!< A system error occurred. */
+  RTMIDI_ERROR_THREAD_ERROR       /*!< A thread error occurred. */
 };
 
 /*! \brief The type of a RtMidi callback function.
@@ -96,6 +99,11 @@ typedef void(* RtMidiCCallback) (double timeStamp, const unsigned char* message,
 
 
 /* RtMidi API */
+
+/*! \brief Return the current RtMidi version.
+ *! See \ref RtMidi::getVersion().
+*/
+RTMIDIAPI const char* rtmidi_get_version();
 
 /*! \brief Determine the available compiled MIDI APIs.
  *
@@ -136,8 +144,8 @@ RTMIDIAPI void rtmidi_error (enum RtMidiErrorType type, const char* errorString)
  */
 RTMIDIAPI void rtmidi_open_port (RtMidiPtr device, unsigned int portNumber, const char *portName);
 
-/*! \brief Creates a virtual MIDI port to which other software applications can 
- * connect.  
+/*! \brief Creates a virtual MIDI port to which other software applications can
+ * connect.
  *
  * \param portName  Name for the application port.
  *
@@ -155,10 +163,14 @@ RTMIDIAPI void rtmidi_close_port (RtMidiPtr device);
  */
 RTMIDIAPI unsigned int rtmidi_get_port_count (RtMidiPtr device);
 
-/*! \brief Return a string identifier for the specified MIDI input port number.
+/*! \brief Access a string identifier for the specified MIDI input port number.
+ * 
+ * To prevent memory leaks a char buffer must be passed to this function.
+ * NULL can be passed as bufOut parameter, and that will write the required buffer length in the bufLen.
+ * 
  * See RtMidi::getPortName().
  */
-RTMIDIAPI const char* rtmidi_get_port_name (RtMidiPtr device, unsigned int portNumber);
+RTMIDIAPI int rtmidi_get_port_name (RtMidiPtr device, unsigned int portNumber, char * bufOut, int * bufLen);
 
 /* RtMidiIn API */
 
@@ -203,8 +215,9 @@ RTMIDIAPI void rtmidi_in_ignore_types (RtMidiInPtr device, bool midiSysex, bool 
  * \param message   Must point to a char* that is already allocated.
  *                  SYSEX messages maximum size being 1024, a statically
  *                  allocated array could
- *                  be sufficient. 
- * \param size      Is used to return the size of the message obtained. 
+ *                  be sufficient.
+ * \param size      Is used to return the size of the message obtained.
+ *                  Must be set to the size of \ref message when calling.
  *
  * See RtMidiIn::getMessage().
  */
