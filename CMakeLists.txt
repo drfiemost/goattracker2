@@ -3,10 +3,20 @@ project(goattracker2)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/")
 
-IF("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
+if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
         "${CMAKE_C_COMPILER_ID}" STREQUAL "Clang")
     add_compile_options("$<$<CONFIG:DEBUG>:-Wall;-Wextra;-pedantic>")
-ENDIF()
+endif()
+
+option(INLINING "enable inlining of functions" ON)
+option(BRANCH_HINTS "enable static branch prediction hints" ON)
+option(NEW_FILTER "enable new 8580 filter implementation" ON)
+
+if(NEW_FILTER)
+    set(FILTER_SRC src/resid/filter8580new.cc)
+else()
+    set(FILTER_SRC src/resid/filter.cc)
+endif()
 
 set(GOATTRK2_SOURCES
     ${CMAKE_BINARY_DIR}/src/goatdata.c
@@ -27,8 +37,7 @@ set(GOATTRK2_SOURCES
     src/resid/dac.cc
     src/resid/envelope.cc
     src/resid/extfilt.cc
-#     src/resid/filter.cc
-    src/resid/filter8580new.cc
+    ${FILTER_SRC}
     src/resid/pot.cc
     src/resid/sid.cc
     src/resid/wave.cc
@@ -83,8 +92,7 @@ set(GT2RELOC_SOURCES
     src/resid/dac.cc
     src/resid/envelope.cc
     src/resid/extfilt.cc
-#     src/resid/filter.cc
-    src/resid/filter8580new.cc
+    ${FILTER_SRC}
     src/resid/pot.cc
     src/resid/sid.cc
     src/resid/wave.cc
@@ -124,6 +132,7 @@ set(SNGSPLI2_SOURCES
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/bme)
 include_directories(${CMAKE_SOURCE_DIR}/src/asm)
+include_directories(${CMAKE_BINARY_DIR}/src/resid)
 
 find_package(SDL2 REQUIRED)
 
@@ -224,3 +233,27 @@ if (EXSID_FOUND)
     include_directories(${EXSID_INCLUDE_DIR})
     target_link_libraries(goattrk2 ${EXSID_LIBRARY})
 endif(EXSID_FOUND)
+
+# create siddefs.h for resid
+
+include(CheckCXXSourceCompiles)
+check_cxx_source_compiles("int main() { __builtin_expect(0, 0); }" HAVE_BUILTIN_EXPECT)
+check_cxx_source_compiles("include <math.h>\nint main() { double x = log1p(1.0); }" HAVE_LOG1P)
+
+macro(get_bool var)
+     if(${ARGN})
+         set(${var} 1)
+     else()
+         set(${var} 0)
+     endif()
+endmacro()
+
+get_bool(RESID_INLINING ${INLINING})
+set(RESID_INLINE "inline")
+get_bool(RESID_BRANCH_HINTS ${BRANCH_HINTS})
+get_bool(NEW_8580_FILTER ${NEW_FILTER})
+set(HAVE_BOOL "1")
+get_bool(HAVE_BUILTIN_EXPECT ${HAVE_BUILTIN_EXPECT})
+get_bool(HAVE_LOG1P ${HAVE_LOG1P})
+
+configure_file(${CMAKE_SOURCE_DIR}/src/resid/siddefs.h.in ${CMAKE_BINARY_DIR}/src/resid/siddefs.h @ONLY)
