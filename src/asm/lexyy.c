@@ -1372,7 +1372,7 @@ case YY_STATE_EOF(MACROO):
 case 111:
 YY_RULE_SETUP
 // #line 188 "asm.yy"
-return ECHO;
+ECHO;
 	YY_BREAK
 // #line 1375 "lex.yy.c"
 
