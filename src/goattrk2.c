@@ -44,7 +44,7 @@ unsigned playerversion = 0;
 int fileformat = FORMAT_PRG;
 int zeropageadr = 0xfc;
 int playeradr = 0x1000;
-unsigned sidmodel = 0;
+unsigned sidmodel = 1;
 unsigned multiplier = 1;
 unsigned adparam = 0x0f00;
 unsigned ntsc = 0;
@@ -104,7 +104,7 @@ char* usage[] = {
     "-Bxx Set sound buffer length in milliseconds DEFAULT=100",
     "-Cxx Use CatWeasel MK3 PCI SID (0 = off, 1 = on)",
     "-Dxx Pattern row display (0 = decimal, 1 = hex, 2 = decimal w/dots, 3 = hex w/dots) DEFAULT=2",
-    "-Exx Set emulated SID model (0 = 6581 1 = 8580) DEFAULT=6581",
+    "-Exx Set emulated SID model (0 = 6581 1 = 8580) DEFAULT=8580",
     "-Fxx Set custom SID clock cycles per second (0 = use PAL/NTSC default)",
     "-Gxx Set pitch of A-4 in Hz (0 = use default frequencytable, close to 440Hz)",
     "-Hxx Use HardSID (0 = off, 1 = HardSID ID0 2 = HardSID ID1 etc.)",
