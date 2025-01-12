@@ -112,7 +112,7 @@ char* usage[] = {
     "-Jxx Set special note names (2 chars for every note in an octave/cycle, e.g. C-DbD-EbE-F-GbG-AbA-BbB-)",
     "-Kxx Note-entry mode (0 = Protracker, 1 = DMC, 2 = Janko) DEFAULT=Protracker",
     "-Lxx SID memory location in hex. DEFAULT=D400",
-    "-Mxx Set sound mixing rate DEFAULT=44100",
+    "-Mxx Set sound mixing rate DEFAULT=48000",
     "-Oxx Set pulseoptimization/skipping (0 = off, 1 = on) DEFAULT=on",
     "-Qxx Set equal divisions per octave (12 = default, 8.2019143 = Bohlen-Pierce)",
     "-Rxx Set realtime-effect optimization/skipping (0 = off, 1 = on) DEFAULT=on",
