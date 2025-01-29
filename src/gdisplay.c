@@ -226,12 +226,12 @@ void printstatus(void)
         if (epmarkstart <= epmarkend)
         {
           if ((p >= epmarkstart) && (p <= epmarkend))
-            printbg(2+c*15+4, 3+d, 1, 9);
+            printbg(2+c*15+4, 3+d, 8, 9);
         }
         else
         {
           if ((p <= epmarkstart) && (p >= epmarkend))
-            printbg(2+c*15+4, 3+d, 1, 9);
+            printbg(2+c*15+4, 3+d, 8, 9);
         }
       }
       if ((color == colors.CEDIT) && (editmode == EDIT_PATTERN) && (epchn == c))
