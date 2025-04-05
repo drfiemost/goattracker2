@@ -12,6 +12,15 @@ if("${CMAKE_C_COMPILER_ID}" STREQUAL "GNU" OR
     add_compile_options("$<$<CONFIG:DEBUG>:-Wall;-Wextra;-pedantic>")
 endif()
 
+include(CheckIPOSupported)
+check_ipo_supported(RESULT result OUTPUT output)
+if(result)
+    message(STATUS "IPO supported by compiler, enabled for release builds")
+    set(CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE TRUE)
+else()
+    message(WARNING "IPO is not supported: ${output}")
+endif()
+
 option(INLINING "enable inlining of functions" ON)
 option(BRANCH_HINTS "enable static branch prediction hints" ON)
 option(NEW_FILTER "enable new 8580 filter implementation" ON)
