@@ -3,8 +3,7 @@ GoatTracker v2.77
 
 Editor by Lasse Öörni (loorni@gmail.com)
 HardSID 4U support by Téli Sándor.
-Uses reSID engine by Dag Lem.
-Uses reSID distortion / nonlinearity by Antti Lankila.
+Uses reSIDfp engine by Dag Lem, Antti Lankila, Leandro Nini.
 Uses 6510 crossassembler from Exomizer2 beta by Magnus Lind.
 Uses the SDL library.
 GoatTracker icon by Antonio Vera.
@@ -115,7 +114,7 @@ for Win32 platform.
    continue editing! Packed & relocated songs (PRG/BIN/SID) can not be loaded
    back into the editor.
 
-3. Even the reSID emulation is in some cases quite far from the output of a
+3. Even the reSIDfp emulation is in some cases quite far from the output of a
    real SID. Especially if filters are in use, consider strongly testing your
    tune on a C64 or on a HardSID card. (Using filters has always been
    complicated because every SID tends to sound different.)
@@ -211,7 +210,7 @@ model 8580 and to load "dojo.sng" on startup.
 -Fxx Set custom SID clock cycles per second (0 = use PAL/NTSC default)
 -Gxx Set pitch of A-4 in Hz (0 = use default frequencytable, close to 440Hz)
 -Hxx Use HardSID (0 = off, 1 = HardSID ID0 2 = HardSID ID1 etc.)
--Ixx Set reSID resampling mode (0 = fast, 1 = interpolation, 2 = resampling, 3 = fastmem resampling) DEFAULT=2
+-Ixx Set reSIDfp resampling mode (0 = interpolation, 1 = resampling) DEFAULT=1
 -Jxx Set special note names (2 chars for every note in an octave/cycle, e.g. C-DbD-EbE-F-GbG-AbA-BbB-)
 -Kxx Note-entry mode (0 = PROTRACKER 1 = DMC) DEFAULT=PROTRK.
 -Lxx SID memory location in hex. DEFAULT=D400
@@ -227,7 +226,7 @@ model 8580 and to load "dojo.sng" on startup.
 -Vxx Set finevibrato conversion (0 = off, 1 = on) DEFAULT=on
 -Xxx Set window type (0 = window, 1 = fullscreen) DEFAULT=window
 -Yxx Path to a Scala tuning file .scl
--Zxx Set random reSID write delay in cycles (0 = off) DEFAULT=off
+-Zxx Set random reSIDfp write delay in cycles (0 = off) DEFAULT=off
 -wxx Set window scale factor (1 = no scaling, 2 to 4 = 2 to 4 times bigger window) DEFAULT=1
 -xxx Use exdSID (0 = off, 1 = on)
 -N   Use NTSC timing
@@ -241,8 +240,7 @@ Try the command line options if there are any problems. For example, if you
 experience choppy audio you can increase audio buffering with -B option. SDL
 seems to have trouble with some soundcards under Windows; you might want to
 try even a 500ms buffer, or tweak the hardware acceleration level of the
-soundcard (from Control Panel). Also, reSID interpolation will take remarkably
-more CPU time and could cause the sound and/or editing to get choppy.
+soundcard (from Control Panel).
 
 Finevibrato mode is on by default. You can change this behaviour with -V
 option. Note that finevibrato mode only affects the conversion of old style

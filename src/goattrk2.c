@@ -61,7 +61,7 @@ unsigned writer = 0;
 unsigned hardsid = 0;
 unsigned catweasel = 0;
 unsigned exsid = 0;
-unsigned interpolate = 2;
+unsigned interpolate = 1;
 unsigned residdelay = 0;
 unsigned hardsidbufinteractive = 20;
 unsigned hardsidbufplayback = 400;
@@ -108,7 +108,7 @@ char* usage[] = {
     "-Fxx Set custom SID clock cycles per second (0 = use PAL/NTSC default)",
     "-Gxx Set pitch of A-4 in Hz (0 = use default frequencytable, close to 440Hz)",
     "-Hxx Use HardSID (0 = off, 1 = HardSID ID0 2 = HardSID ID1 etc.)",
-    "-Ixx Set reSID resampling mode (0 = fast, 1 = interpolation, 2 = resampling, 3 = fastmem resampling) DEFAULT=2",
+    "-Ixx Set reSIDfp resampling mode (0 = fast, 1 = interpolation, 2 = resampling, 3 = fastmem resampling) DEFAULT=2",
     "-Jxx Set special note names (2 chars for every note in an octave/cycle, e.g. C-DbD-EbE-F-GbG-AbA-BbB-)",
     "-Kxx Note-entry mode (0 = Protracker, 1 = DMC, 2 = Janko) DEFAULT=Protracker",
     "-Lxx SID memory location in hex. DEFAULT=D400",
@@ -122,7 +122,7 @@ char* usage[] = {
     "-Vxx Set finevibrato conversion (0 = off, 1 = on) DEFAULT=on",
     "-Xxx Set window type (0 = window, 1 = fullscreen) DEFAULT=window",
     "-Yxx Path to a Scala tuning file .scl",
-    "-Zxx Set random reSID write delay in cycles (0 = off) DEFAULT=off",
+    "-Zxx Set random reSIDfp write delay in cycles (0 = off) DEFAULT=off",
     "-bxx Set filter bias (0.0 (dark) to 1.0 (light))",
     "-wxx Set window scale factor (1 = no scaling, 2 to 4 = 2 to 4 times bigger window) DEFAULT=1",
     "-xxx Use exdSID (0 = off, 1 = on)",
@@ -490,10 +490,10 @@ int main(int argc, char **argv)
                         ";to be preceded with $ and decimal parameters with nothing.                    \n"
                         ";------------------------------------------------------------------------------\n"
                         "\n"
-                        ";reSID buffer length (in milliseconds)\n%d\n\n"
-                        ";reSID mixing rate (in Hz)\n%d\n\n"
+                        ";reSIDfp buffer length (in milliseconds)\n%d\n\n"
+                        ";reSIDfp mixing rate (in Hz)\n%d\n\n"
                         ";Hardsid device number (0 = off)\n%d\n\n"
-                        ";reSID model (0 = 6581, 1 = 8580)\n%d\n\n"
+                        ";reSIDfp model (0 = 6581, 1 = 8580)\n%d\n\n"
                         ";Timing mode (0 = PAL, 1 = NTSC)\n%d\n\n"
                         ";Packer/relocator fileformat (0 = SID, 1 = PRG, 2 = BIN)\n%d\n\n"
                         ";Packer/relocator player address\n$%04x\n\n"
@@ -504,13 +504,13 @@ int main(int argc, char **argv)
                         ";Speed multiplier (0 = 25Hz, 1 = 1X, 2 = 2X etc.)\n%d\n\n"
                         ";Use CatWeasel SID (0 = off, 1 = on)\n%d\n\n"
                         ";Hardrestart ADSR parameter\n$%04x\n\n"
-                        ";reSID resampling mode (0 = fast, 1 = interpolation, 2 = resampling, 3 = fastmem resampling)\n%d\n\n"
+                        ";reSIDfp resampling mode (0 = interpolation, 1 = resampling)\n%d\n\n"
                         ";Pattern display mode (0 = decimal, 1 = hex, 2 = decimal w/dots, 3 = hex w/dots)\n%d\n\n"
                         ";SID baseaddress\n$%04x\n\n"
                         ";Finevibrato mode (0 = off, 1 = on)\n%d\n\n"
                         ";Pulseskipping (0 = off, 1 = on)\n%d\n\n"
                         ";Realtime effect skipping (0 = off, 1 = on)\n%d\n\n"
-                        ";Random reSID write delay in cycles (0 = off)\n%d\n\n"
+                        ";Random reSIDfp write delay in cycles (0 = off)\n%d\n\n"
                         ";Custom SID clock cycles per second (0 = use PAL/NTSC default)\n%d\n\n"
                         ";HardSID interactive mode buffer size (in milliseconds, 0 = maximum/no flush)\n%d\n\n"
                         ";HardSID playback mode buffer size (in milliseconds, 0 = maximum/no flush)\n%d\n\n"
