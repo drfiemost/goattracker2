@@ -6,7 +6,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "resid/sid.h"
+#include "residfp/SID.h"
 
 #include "gsid.h"
 #include "gsound.h"
@@ -26,7 +26,7 @@ unsigned char altsidorder[] =
    0x0b,0x07,0x08,0x09,0x0a,0x0c,0x0d,
    0x12,0x0e,0x0f,0x10,0x11,0x13,0x14};
 
-reSID::SID *sid = nullptr;
+reSIDfp::SID *sid = nullptr;
 
 extern unsigned residdelay;
 extern unsigned adparam;
@@ -41,30 +41,23 @@ void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsign
 
   samplerate = speed;
 
-  if (!sid) sid = new reSID::SID;
+  if (!sid) sid = new reSIDfp::SID;
 
   switch(interpolate)
   {
     case 0:
-        sid->set_sampling_parameters(clockrate, reSID::SAMPLE_FAST, speed);
+        sid->setSamplingParameters(clockrate, reSIDfp::DECIMATE, speed);
         break;
 
-    case 1:
-        sid->set_sampling_parameters(clockrate, reSID::SAMPLE_INTERPOLATE, speed);
-        break;
-
-    case 2:
-        sid->set_sampling_parameters(clockrate, reSID::SAMPLE_RESAMPLE, speed);
-        break;
-
-    case 3:
     default:
-        sid->set_sampling_parameters(clockrate, reSID::SAMPLE_RESAMPLE_FASTMEM, speed);
+    case 1:
+        sid->setSamplingParameters(clockrate, reSIDfp::RESAMPLE, speed);
         break;
   }
 
   sid->reset();
-  sid->adjust_filter_bias((filterbias-0.5)*10.);
+  sid->setFilter6581Curve(filterbias);
+  sid->setFilter8580Curve(filterbias);
 
   for (int c = 0; c < NUMSIDREGS; c++)
   {
@@ -72,11 +65,11 @@ void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsign
   }
   if (m == 1)
   {
-    sid->set_chip_model(reSID::MOS8580);
+    sid->setChipModel(reSIDfp::MOS8580);
   }
   else
   {
-    sid->set_chip_model(reSID::MOS6581);
+    sid->setChipModel(reSIDfp::MOS6581);
   }
 }
 
@@ -110,7 +103,7 @@ int sid_fillbuffer(short *ptr, int samples)
     if ((badline == c) && (residdelay))
     {
       tdelta2 = residdelay;
-      result = sid->clock(tdelta2, ptr, samples);
+      result = sid->clock(tdelta2, ptr);
       total += result;
       ptr += result;
       samples -= result;
@@ -120,7 +113,7 @@ int sid_fillbuffer(short *ptr, int samples)
     sid->write(o, sidreg[o]);
 
     tdelta2 = SIDWRITEDELAY;
-    result = sid->clock(tdelta2, ptr, samples);
+    result = sid->clock(tdelta2, ptr);
     total += result;
     ptr += result;
     samples -= result;
@@ -129,7 +122,7 @@ int sid_fillbuffer(short *ptr, int samples)
     if (tdelta <= 0) return total;
   }
 
-  result = sid->clock(tdelta, ptr, samples);
+  result = sid->clock(tdelta, ptr);
   total += result;
   ptr += result;
   samples -= result;
@@ -140,7 +133,7 @@ int sid_fillbuffer(short *ptr, int samples)
     tdelta = clockrate * samples / samplerate;
     if (tdelta <= 0) return total;
 
-    result = sid->clock(tdelta, ptr, samples);
+    result = sid->clock(tdelta, ptr);
     total += result;
     ptr += result;
     samples -= result;
