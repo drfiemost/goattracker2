@@ -31,7 +31,7 @@ reSIDfp::SID *sid = nullptr;
 extern unsigned residdelay;
 extern unsigned adparam;
 
-void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsigned customclockrate, float filterbias)
+void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsigned customclockrate, float filterbias, unsigned combwaves)
 {
   if (ntsc) clockrate = NTSCCLOCKRATE;
     else clockrate = PALCLOCKRATE;
@@ -58,6 +58,22 @@ void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsign
   sid->reset();
   sid->setFilter6581Curve(filterbias);
   sid->setFilter8580Curve(filterbias);
+  switch(combwaves)
+  {
+    case 0:
+        sid->setCombinedWaveforms(reSIDfp::WEAK);
+        break;
+
+    default:
+    case 1:
+        sid->setCombinedWaveforms(reSIDfp::AVERAGE);
+        break;
+
+    case 2:
+        sid->setCombinedWaveforms(reSIDfp::STRONG);
+        break;
+  }
+
 
   for (int c = 0; c < NUMSIDREGS; c++)
   {

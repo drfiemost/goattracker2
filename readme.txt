@@ -227,6 +227,8 @@ model 8580 and to load "dojo.sng" on startup.
 -Xxx Set window type (0 = window, 1 = fullscreen) DEFAULT=window
 -Yxx Path to a Scala tuning file .scl
 -Zxx Set random reSIDfp write delay in cycles (0 = off) DEFAULT=off
+-bxx Set filter curve (0.0 (dark) to 1.0 (light))
+-cxx Set combined waveforms strength (0 weak, 1 average, 2 strong) DEFAULT=average
 -wxx Set window scale factor (1 = no scaling, 2 to 4 = 2 to 4 times bigger window) DEFAULT=1
 -xxx Use exdSID (0 = off, 1 = on)
 -N   Use NTSC timing
@@ -272,6 +274,8 @@ and command column for zero instrument (no change) or zero command (no command.)
 
 2.2 Hardware support
 --------------------
+
+exSID support is available with the -x option (-x1 to turn on).
 
 HardSID support is available with the /H option (use first HardSID = -H1,
 second = -H2 etc., return to emulated output = -H0). You must have the HardSID
