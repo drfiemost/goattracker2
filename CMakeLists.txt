@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.10)
 project(goattracker2)
 
 set(CMAKE_CXX_EXTENSIONS OFF)
@@ -23,13 +23,6 @@ endif()
 
 option(INLINING "enable inlining of functions" ON)
 option(BRANCH_HINTS "enable static branch prediction hints" ON)
-option(NEW_FILTER "enable new 8580 filter implementation" ON)
-
-if(NEW_FILTER)
-    set(FILTER_SRC src/resid/filter8580new.cc)
-else()
-    set(FILTER_SRC src/resid/filter.cc)
-endif()
 
 set(GOATTRK2_SOURCES
     ${CMAKE_BINARY_DIR}/src/goatdata.c
@@ -47,14 +40,24 @@ set(GOATTRK2_SOURCES
     src/gsound.c
     src/gconsole.c
     src/gsid.cpp
-    src/resid/dac.cc
-    src/resid/envelope.cc
-    src/resid/extfilt.cc
-    ${FILTER_SRC}
-    src/resid/pot.cc
-    src/resid/sid.cc
-    src/resid/wave.cc
-    src/resid/voice.cc
+    src/residfp/Dac.cpp
+    src/residfp/EnvelopeGenerator.cpp
+    src/residfp/ExternalFilter.cpp
+    src/residfp/Filter6581.cpp
+    src/residfp/Filter8580.cpp
+    src/residfp/Filter.cpp
+    src/residfp/FilterModelConfig6581.cpp
+    src/residfp/FilterModelConfig8580.cpp
+    src/residfp/FilterModelConfig.cpp
+    src/residfp/Integrator6581.cpp
+    src/residfp/Integrator8580.cpp
+    src/residfp/OpAmp.cpp
+    src/residfp/SID.cpp
+    src/residfp/Spline.cpp
+    src/residfp/version.cc
+    src/residfp/WaveformCalculator.cpp
+    src/residfp/WaveformGenerator.cpp
+    src/residfp/resample/SincResampler.cpp
     src/asm/asmtab.c
     src/asm/chnkpool.c
     src/asm/expr.c
@@ -85,7 +88,7 @@ if(MINGW)
     )
 endif(MINGW)
 
-# it would be nice not having to link things like resid, however the source is
+# it would be nice not having to link things like residfp, however the source is
 # not ready for that
 set(GT2RELOC_SOURCES
     ${CMAKE_BINARY_DIR}/src/goatdata.c
@@ -102,14 +105,24 @@ set(GT2RELOC_SOURCES
     src/gsound.c
     src/gconsole.c
     src/gsid.cpp
-    src/resid/dac.cc
-    src/resid/envelope.cc
-    src/resid/extfilt.cc
-    ${FILTER_SRC}
-    src/resid/pot.cc
-    src/resid/sid.cc
-    src/resid/wave.cc
-    src/resid/voice.cc
+    src/residfp/Dac.cpp
+    src/residfp/EnvelopeGenerator.cpp
+    src/residfp/ExternalFilter.cpp
+    src/residfp/Filter6581.cpp
+    src/residfp/Filter8580.cpp
+    src/residfp/Filter.cpp
+    src/residfp/FilterModelConfig6581.cpp
+    src/residfp/FilterModelConfig8580.cpp
+    src/residfp/FilterModelConfig.cpp
+    src/residfp/Integrator6581.cpp
+    src/residfp/Integrator8580.cpp
+    src/residfp/OpAmp.cpp
+    src/residfp/SID.cpp
+    src/residfp/Spline.cpp
+    src/residfp/version.cc
+    src/residfp/WaveformCalculator.cpp
+    src/residfp/WaveformGenerator.cpp
+    src/residfp/resample/SincResampler.cpp
     src/asm/asmtab.c
     src/asm/chnkpool.c
     src/asm/expr.c
@@ -145,7 +158,7 @@ set(SNGSPLI2_SOURCES
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/src/bme)
 include_directories(${CMAKE_SOURCE_DIR}/src/asm)
-include_directories(${CMAKE_BINARY_DIR}/src/resid)
+include_directories(${CMAKE_BINARY_DIR}/src/residfp)
 
 find_package(SDL2 REQUIRED)
 
@@ -247,7 +260,7 @@ if (EXSID_FOUND)
     target_link_libraries(goattrk2 ${EXSID_LIBRARY})
 endif(EXSID_FOUND)
 
-# create siddefs.h for resid
+# create siddefs-fp.h for residfp
 
 include(CheckCXXSourceCompiles)
 check_cxx_source_compiles("int main() { __builtin_expect(0, 0); }" HAVE_BUILTIN_EXPECT)
@@ -264,9 +277,7 @@ endmacro()
 get_bool(RESID_INLINING ${INLINING})
 set(RESID_INLINE "inline")
 get_bool(RESID_BRANCH_HINTS ${BRANCH_HINTS})
-get_bool(NEW_8580_FILTER ${NEW_FILTER})
-set(HAVE_BOOL "1")
 get_bool(HAVE_BUILTIN_EXPECT ${HAVE_BUILTIN_EXPECT})
 get_bool(HAVE_LOG1P ${HAVE_LOG1P})
 
-configure_file(${CMAKE_SOURCE_DIR}/src/resid/siddefs.h.in ${CMAKE_BINARY_DIR}/src/resid/siddefs.h @ONLY)
+configure_file(${CMAKE_SOURCE_DIR}/src/residfp/siddefs-fp.h.in ${CMAKE_BINARY_DIR}/src/residfp/siddefs-fp.h @ONLY)

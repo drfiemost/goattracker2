@@ -61,10 +61,11 @@ unsigned writer = 0;
 unsigned hardsid = 0;
 unsigned catweasel = 0;
 unsigned exsid = 0;
-unsigned interpolate = 2;
+unsigned interpolate = 1;
 unsigned residdelay = 0;
 unsigned hardsidbufinteractive = 20;
 unsigned hardsidbufplayback = 400;
+unsigned combwaves = 1;
 float basepitch = 0.0f;
 float filterbias = 0.5f;
 float equaldivisionsperoctave = 12.0f;
@@ -108,7 +109,7 @@ char* usage[] = {
     "-Fxx Set custom SID clock cycles per second (0 = use PAL/NTSC default)",
     "-Gxx Set pitch of A-4 in Hz (0 = use default frequencytable, close to 440Hz)",
     "-Hxx Use HardSID (0 = off, 1 = HardSID ID0 2 = HardSID ID1 etc.)",
-    "-Ixx Set reSID resampling mode (0 = fast, 1 = interpolation, 2 = resampling, 3 = fastmem resampling) DEFAULT=2",
+    "-Ixx Set reSIDfp resampling mode (0 = fast, 1 = interpolation, 2 = resampling, 3 = fastmem resampling) DEFAULT=2",
     "-Jxx Set special note names (2 chars for every note in an octave/cycle, e.g. C-DbD-EbE-F-GbG-AbA-BbB-)",
     "-Kxx Note-entry mode (0 = Protracker, 1 = DMC, 2 = Janko) DEFAULT=Protracker",
     "-Lxx SID memory location in hex. DEFAULT=D400",
@@ -122,8 +123,9 @@ char* usage[] = {
     "-Vxx Set finevibrato conversion (0 = off, 1 = on) DEFAULT=on",
     "-Xxx Set window type (0 = window, 1 = fullscreen) DEFAULT=window",
     "-Yxx Path to a Scala tuning file .scl",
-    "-Zxx Set random reSID write delay in cycles (0 = off) DEFAULT=off",
-    "-bxx Set filter bias (0.0 (dark) to 1.0 (light))",
+    "-Zxx Set random reSIDfp write delay in cycles (0 = off) DEFAULT=off",
+    "-bxx Set filter curve (0.0 (dark) to 1.0 (light))",
+    "-cxx Set combined waveforms strength (0 weak, 1 average, 2 strong) DEFAULT=average"
     "-wxx Set window scale factor (1 = no scaling, 2 to 4 = 2 to 4 times bigger window) DEFAULT=1",
     "-xxx Use exdSID (0 = off, 1 = on)",
     "-N   Use NTSC timing",
@@ -200,6 +202,7 @@ int main(int argc, char **argv)
     getparam(configfile, &hardsidbufplayback);
     getparam(configfile, (unsigned*)&win_fullscreen);
     getparam(configfile, &bigwindow);
+    getparam(configfile, &combwaves);
     getfloatparam(configfile, &basepitch);
     getfloatparam(configfile, &filterbias);
     getfloatparam(configfile, &equaldivisionsperoctave);
@@ -351,6 +354,10 @@ int main(int argc, char **argv)
         sscanf(&argv[c][2], "%f", &filterbias);
         break;
  
+        case 'c':
+        sscanf(&argv[c][2], "%f", &combwaves);
+        break;
+ 
         case 'Q':
         sscanf(&argv[c][2], "%f", &equaldivisionsperoctave);
         break;
@@ -412,6 +419,8 @@ int main(int argc, char **argv)
   if (customclockrate < 100) customclockrate = 0;
   if (bigwindow < 1) bigwindow = 1;
   if (bigwindow > 4) bigwindow = 4;
+  if (combwaves < 0) combwaves = 0;
+  else if (combwaves > 2) combwaves = 2;
   if (filterbias < 0.0) filterbias = 0.0;
   else if (filterbias > 1.0) filterbias = 1.0;
 
@@ -442,7 +451,7 @@ int main(int argc, char **argv)
   clearsong(1,1,1,1,1);
 
   // Init sound
-  if (!sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias))
+  if (!sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias, combwaves))
   {
     printtextc(MAX_ROWS/2-1,15,"Sound init failed. Press any key to run without sound (notice that song timer won't start)");
     waitkeynoupdate();
@@ -490,10 +499,10 @@ int main(int argc, char **argv)
                         ";to be preceded with $ and decimal parameters with nothing.                    \n"
                         ";------------------------------------------------------------------------------\n"
                         "\n"
-                        ";reSID buffer length (in milliseconds)\n%d\n\n"
-                        ";reSID mixing rate (in Hz)\n%d\n\n"
+                        ";reSIDfp buffer length (in milliseconds)\n%d\n\n"
+                        ";reSIDfp mixing rate (in Hz)\n%d\n\n"
                         ";Hardsid device number (0 = off)\n%d\n\n"
-                        ";reSID model (0 = 6581, 1 = 8580)\n%d\n\n"
+                        ";reSIDfp model (0 = 6581, 1 = 8580)\n%d\n\n"
                         ";Timing mode (0 = PAL, 1 = NTSC)\n%d\n\n"
                         ";Packer/relocator fileformat (0 = SID, 1 = PRG, 2 = BIN)\n%d\n\n"
                         ";Packer/relocator player address\n$%04x\n\n"
@@ -504,20 +513,21 @@ int main(int argc, char **argv)
                         ";Speed multiplier (0 = 25Hz, 1 = 1X, 2 = 2X etc.)\n%d\n\n"
                         ";Use CatWeasel SID (0 = off, 1 = on)\n%d\n\n"
                         ";Hardrestart ADSR parameter\n$%04x\n\n"
-                        ";reSID resampling mode (0 = fast, 1 = interpolation, 2 = resampling, 3 = fastmem resampling)\n%d\n\n"
+                        ";reSIDfp resampling mode (0 = interpolation, 1 = resampling)\n%d\n\n"
                         ";Pattern display mode (0 = decimal, 1 = hex, 2 = decimal w/dots, 3 = hex w/dots)\n%d\n\n"
                         ";SID baseaddress\n$%04x\n\n"
                         ";Finevibrato mode (0 = off, 1 = on)\n%d\n\n"
                         ";Pulseskipping (0 = off, 1 = on)\n%d\n\n"
                         ";Realtime effect skipping (0 = off, 1 = on)\n%d\n\n"
-                        ";Random reSID write delay in cycles (0 = off)\n%d\n\n"
+                        ";Random reSIDfp write delay in cycles (0 = off)\n%d\n\n"
                         ";Custom SID clock cycles per second (0 = use PAL/NTSC default)\n%d\n\n"
                         ";HardSID interactive mode buffer size (in milliseconds, 0 = maximum/no flush)\n%d\n\n"
                         ";HardSID playback mode buffer size (in milliseconds, 0 = maximum/no flush)\n%d\n\n"
                         ";Window type (0 = window, 1 = fullscreen)\n%d\n\n"
                         ";window scale factor (1 = no scaling, 2 to 4 = 2 to 4 times bigger window)\n%d\n\n"
                         ";Base pitch of A-4 in Hz (0 = use default frequencytable)\n%f\n\n"
-                        ";Filter bias (0.0 (dark) to 1.0 (light))\n%f\n\n"
+                        ";Filter curve (0.0 (dark) to 1.0 (light))\n%f\n\n"
+                        ";Combined waveforms strength (0 weak, 1 average, 2 strong)\n%d\n\n"
                         ";Equal divisions per octave (12 = default, 8.2019143 = Bohlen-Pierce)\n%f\n\n"
                         ";Special note names (2 chars for every note in an octave/cycle)\n%s\n\n"
                         ";Path to a Scala tuning file .scl\n%s\n\n"
@@ -550,6 +560,7 @@ int main(int argc, char **argv)
     bigwindow,
     basepitch,
     filterbias,
+    combwaves,
     equaldivisionsperoctave,
     specialnotenames,
     scalatuningfilepath,
@@ -895,12 +906,12 @@ void mousecommands(void)
       if ((mousex >= 49+10) && (mousex <= 52+10))
       {
         ntsc ^= 1;
-        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias);
+        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias, combwaves);
       }
       if ((mousex >= 54+10) && (mousex <= 57+10))
       {
         sidmodel ^= 1;
-        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias);
+        sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias, combwaves);
       }
       if ((mousex >= 62+10) && (mousex <= 65+10)) editadsr();
       if ((mousex >= 67+10) && (mousex <= 68+10)) prevmultiplier();
@@ -1120,7 +1131,7 @@ void generalcommands(void)
     else
     {
       sidmodel ^= 1;
-      sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias);
+      sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias, combwaves);
     }
     break;
 
@@ -1488,7 +1499,7 @@ void prevmultiplier(void)
   if (multiplier > 0)
   {
     multiplier--;
-    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias);
+    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias, combwaves);
   }
 }
 
@@ -1497,7 +1508,7 @@ void nextmultiplier(void)
   if (multiplier < 16)
   {
     multiplier++;
-    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias);
+    sound_init(b, mr, writer, hardsid, sidmodel, ntsc, multiplier, catweasel, interpolate, customclockrate, exsid, filterbias, combwaves);
   }
 }
 

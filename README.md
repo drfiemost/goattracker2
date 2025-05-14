@@ -4,7 +4,7 @@ A fork of [goattracker2](https://sourceforge.net/projects/goattracker2/) with th
 * ported to SDL2
 * dots display extended to tables and enabled by default (inspired by [SpiderJ's fork](https://github.com/jansalleine/gt2fork))
 * default to a C64 color theme, with an option to run with original colorscheme (inspired by [SpiderJ's fork](https://github.com/jansalleine/gt2fork))
-* using latest reSID from VICE, ancient resid-fp dropped
+* using latest reSIDfp, resid dropped
 * exSID hardware support
 * JACK audio output (from [leafo's fork](https://github.com/leafo/goattracker2))
 * MIDI input (based on leafo's fork with added cross-platform support using [RtMidi](https://www.music.mcgill.ca/~gary/rtmidi/))
