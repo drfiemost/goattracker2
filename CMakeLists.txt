@@ -264,7 +264,7 @@ endif(EXSID_FOUND)
 
 include(CheckCXXSourceCompiles)
 check_cxx_source_compiles("int main() { __builtin_expect(0, 0); }" HAVE_BUILTIN_EXPECT)
-check_cxx_source_compiles("include <math.h>\nint main() { double x = log1p(1.0); }" HAVE_LOG1P)
+check_cxx_source_compiles("#include <cmath>\nint main() { double x = std::log1p(1.0); }" HAVE_LOG1P)
 
 macro(get_bool var)
      if(${ARGN})
