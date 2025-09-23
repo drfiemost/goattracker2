@@ -27,6 +27,8 @@
 #include "FilterModelConfig6581.h"
 #include "Integrator6581.h"
 
+//#include "sidcxx11.h"
+
 namespace reSIDfp
 {
 

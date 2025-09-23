@@ -37,10 +37,10 @@ namespace reSIDfp
 class Filter
 {
 private:
-    unsigned short** mixer;
-    unsigned short** summer;
-    unsigned short** resonance;
-    unsigned short** volume;
+    unsigned short* mixer;
+    unsigned short* summer;
+    unsigned short* resonance;
+    unsigned short* volume;
 
     FilterModelConfig& fmc;
 
@@ -108,6 +108,13 @@ private:
         return fmc.getNormalizedVoice(v.output(), v.envelope()->output());
     }
 
+    // If voice 3 is off we still need to clock the waveform generator
+    inline int getSilentVoice(Voice& v) const
+    {
+        v.wave()->output();
+        return 0;
+    }
+
 protected:
     /**
      * Update filter cutoff frequency.
@@ -119,7 +126,7 @@ protected:
      *
      * @param res the new resonance value
      */
-    void updateResonance(unsigned char res) { currentResonance = resonance[res]; }
+    void updateResonance(unsigned char res) { currentResonance = resonance + (res * (1<<16)); }
 
     /**
      * Mixing configuration modified (offsets change)
@@ -209,7 +216,7 @@ unsigned short Filter::clock(Voice& voice1, Voice& voice2, Voice& voice3)
     const int V1 = getNormalizedVoice(voice1);
     const int V2 = getNormalizedVoice(voice2);
     // Voice 3 is silenced by voice3off if it is not routed through the filter.
-    const int V3 = (filt3 || !voice3off) ? getNormalizedVoice(voice3) : 0;
+    const int V3 = (filt3 || !voice3off) ? getNormalizedVoice(voice3) : getSilentVoice(voice3);
 
     int Vsum = 0;
     int Vmix = 0;

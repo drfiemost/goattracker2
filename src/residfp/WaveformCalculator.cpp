@@ -21,6 +21,9 @@
 
 #include "WaveformCalculator.h"
 
+//#include "sidcxx11.h"
+#define MAYBE_UNUSED
+
 #include <map>
 #include <mutex>
 #include <cmath>
@@ -61,7 +64,7 @@ static float exponentialDistance(float distance, int i)
     return std::pow(distance, -i);
 }
 
-static float linearDistance(float distance, int i)
+MAYBE_UNUSED static float linearDistance(float distance, int i)
 {
     return 1.f / (1.f + i * distance);
 }

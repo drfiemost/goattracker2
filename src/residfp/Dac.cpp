@@ -22,6 +22,8 @@
 
 #include "Dac.h"
 
+//#include "sidcxx11.h"
+
 namespace reSIDfp
 {
 
