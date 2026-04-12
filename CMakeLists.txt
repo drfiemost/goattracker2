@@ -164,14 +164,13 @@ include_directories(${CMAKE_SOURCE_DIR}/src/bme)
 include_directories(${CMAKE_SOURCE_DIR}/src/asm)
 include_directories(${CMAKE_BINARY_DIR}/src/residfp)
 
-find_package(SDL2 REQUIRED)
-
-get_target_property(SDL2_INCLUDE_DIRS SDL2::SDL2 INTERFACE_INCLUDE_DIRECTORIES)
+find_package(SDL3 REQUIRED)
 
 add_executable(datafile src/bme/datafile.c src/bme/bme_end.c)
 add_executable(dat2inc src/bme/dat2inc.c)
 
-target_include_directories(datafile PUBLIC ${SDL2_INCLUDE_DIRS})
+target_include_directories(datafile PUBLIC SDL3::Headers)
+
 
 file(MAKE_DIRECTORY ${CMAKE_BINARY_DIR}/src)
 
@@ -199,28 +198,23 @@ add_custom_target(goatdata DEPENDS ${CMAKE_BINARY_DIR}/src/goatdata.c)
 add_dependencies(goattrk2 goatdata)
 add_dependencies(gt2reloc goatdata)
 
-target_include_directories(mod2sng PUBLIC ${SDL2_INCLUDE_DIRS})
-target_include_directories(ins2snd2 PUBLIC ${SDL2_INCLUDE_DIRS})
-target_include_directories(sngspli2 PUBLIC ${SDL2_INCLUDE_DIRS})
+target_include_directories(mod2sng PUBLIC SDL3::Headers)
+target_include_directories(ins2snd2 PUBLIC SDL3::Headers)
+target_include_directories(sngspli2 PUBLIC SDL3::Headers)
 
 if(MINGW)
     set(LIB_MINGW mingw32)
 endif()
 
-if(TARGET SDL2::SDL2main)
-    target_link_libraries(goattrk2 ${LIB_MINGW} SDL2::SDL2main)
-    target_link_libraries(gt2reloc ${LIB_MINGW} SDL2::SDL2main)
-endif()
-
 OPTION(STATIC "Static build" OFF)
 IF(STATIC)
     set(CMAKE_EXE_LINKER_FLAGS "-static")
-    target_link_libraries(goattrk2 SDL2::SDL2-static)
-    target_link_libraries(gt2reloc SDL2::SDL2-static)
-ELSE(STATIC)
-    target_link_libraries(goattrk2 SDL2::SDL2)
-    target_link_libraries(gt2reloc SDL2::SDL2)
-ENDIF(STATIC)
+    target_link_libraries(goattrk2 PRIVATE SDL3::SDL3-static)
+    target_link_libraries(gt2reloc PRIVATE SDL3::SDL3-static)
+ELSE()
+    target_link_libraries(goattrk2 SDL3::SDL3)
+    target_link_libraries(gt2reloc SDL3::SDL3)
+ENDIF()
 
 find_package(Jack)
 IF(JACK_FOUND)
@@ -255,14 +249,14 @@ endif()
 
 if (use_midi)
     target_compile_definitions(goattrk2 PUBLIC USE_MIDI_INPUT)
-endif(use_midi)
+endif()
 
 find_package(ExSID)
 if (EXSID_FOUND)
     target_compile_definitions(goattrk2 PUBLIC USE_EXSID)
     include_directories(${EXSID_INCLUDE_DIR})
     target_link_libraries(goattrk2 ${EXSID_LIBRARY})
-endif(EXSID_FOUND)
+endif()
 
 # create siddefs-fp.h for residfp
 

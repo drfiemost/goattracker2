@@ -60,7 +60,7 @@ int initscreen(void)
     mousesizey *= 2;
   }
 
-  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_TIMER) < 0)
+  if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO) < 0)
     return 0;
   win_openwindow(xsize, ysize, "GoatTracker", NULL);
   win_setmousemode(MOUSE_ALWAYS_HIDDEN);
@@ -143,7 +143,7 @@ void initicon(void)
   int handle = io_open("goattrk2.bmp");
   if (handle != -1)
   {
-    SDL_RWops *rw;
+    SDL_IOStream *rw;
     SDL_Surface *icon;
     char *iconbuffer;
     int size;
@@ -155,8 +155,8 @@ void initicon(void)
     {
       io_read(handle, iconbuffer, size);
       io_close(handle);
-      rw = SDL_RWFromMem(iconbuffer, size);
-      icon = SDL_LoadBMP_RW(rw, 0);
+      rw = SDL_IOFromMem(iconbuffer, size);
+      icon = SDL_LoadBMP_IO(rw, 0);
       SDL_SetWindowIcon(win_window, icon);
       free(iconbuffer);
     }
@@ -592,7 +592,7 @@ void getkey(void)
 
   key = win_asciikey;
   rawkey = 0;
-  for (c = 0; c < SDL_NUM_SCANCODES; c++)
+  for (c = 0; c < SDL_SCANCODE_COUNT; c++)
   {
     if (win_keytable[c])
     {

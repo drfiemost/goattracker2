@@ -28,7 +28,7 @@ SDL_TimerID timer = 0;
 
 void sound_playrout(void);
 void sound_mixer(Sint32 *dest, unsigned samples);
-Uint32 sound_timer(Uint32 interval, void *param);
+Uint32 sound_timer(void *userdata, SDL_TimerID timerID, Uint32 interval);
 
 #ifdef __WIN32__
 
@@ -409,7 +409,7 @@ void sound_flush(void)
   #endif
 }
 
-Uint32 sound_timer(Uint32 interval, void *param)
+Uint32 sound_timer(void *userdata, SDL_TimerID timerID, Uint32 interval)
 {
   if (!initted) return interval;
   sound_playrout();
