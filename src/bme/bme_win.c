@@ -70,14 +70,16 @@ int win_openwindow(unsigned xsize, unsigned ysize, char *appname, char *icon)
     //SDL_EnableUNICODE(1);
     win_window = SDL_CreateWindow(appname, xsize, ysize, flags);
     if (!win_window)
-        {
-            return BME_ERROR;
-        }
+    {
+        return BME_ERROR;
+    }
+    SDL_StartTextInput(win_window);
     return BME_OK;
 }
 
 void win_closewindow(void)
 {
+    SDL_StopTextInput(win_window);
     SDL_DestroyWindow(win_window);
 }
 

@@ -91,7 +91,7 @@ int gfx_init(unsigned xsize, unsigned ysize, unsigned framerate, unsigned flags)
     if (flags & GFX_NOSWITCHING) gfx_preventswitch = 1;
         else gfx_preventswitch = 0;
 
-    SDL_SetWindowFullscreen(win_window, win_fullscreen ? SDL_WINDOW_FULLSCREEN : 0);
+    SDL_SetWindowFullscreen(win_window, win_fullscreen);
 
     // Calculate virtual window size
 
