@@ -58,7 +58,7 @@ int win_openwindow(unsigned xsize, unsigned ysize, char *appname, char *icon)
 
     if (!win_windowinitted)
     {
-        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0)
+        if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK))
         {
             return BME_ERROR;
         }
@@ -68,9 +68,11 @@ int win_openwindow(unsigned xsize, unsigned ysize, char *appname, char *icon)
 
     //SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     //SDL_EnableUNICODE(1);
-    win_window = SDL_CreateWindow(appname,
-                             xsize, ysize,
-                             flags);
+    win_window = SDL_CreateWindow(appname, xsize, ysize, flags);
+    if (!win_window)
+        {
+            return BME_ERROR;
+        }
     return BME_OK;
 }
 

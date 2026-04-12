@@ -336,7 +336,7 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned bufferlength, unsigned
         return BME_ERROR;
     }
 
-    SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(stream));
+    //SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(stream)); // FIXME
     bme_error = BME_OK;
     return BME_OK;
 }

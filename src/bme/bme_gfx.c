@@ -170,7 +170,7 @@ int gfx_lock(void)
 {
     if (gfx_locked) return 1;
     if (!gfx_initted) return 0;
-    if (!SDL_LockSurface(gfx_screen))
+    if (SDL_LockSurface(gfx_screen))
     {
         gfx_locked = 1;
         return 1;

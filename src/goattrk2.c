@@ -25,6 +25,8 @@
 #include "goattrk2.h"
 #include "bme.h"
 
+#include <SDL3/SDL_main.h>
+
 int menu = 0;
 int editmode = EDIT_PATTERN;
 int recordmode = 1;
