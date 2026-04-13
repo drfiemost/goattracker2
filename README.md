@@ -9,7 +9,7 @@ A fork of [goattracker2](https://sourceforge.net/projects/goattracker2/) with th
 * JACK audio output (from [leafo's fork](https://github.com/leafo/goattracker2))
 * MIDI input (based on leafo's fork with added cross-platform support using [RtMidi](https://www.music.mcgill.ca/~gary/rtmidi/))
 * XDG compliant
-* synced with goattrk 2.76 (no stereo version)
+* synced with goattrk 2.77 (no stereo version)
 
 ---
 

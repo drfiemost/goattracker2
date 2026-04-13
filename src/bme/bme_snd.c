@@ -27,7 +27,7 @@ typedef jack_default_audio_sample_t sample_t;
 #endif
 
 // Prototypes
-int snd_init(unsigned mixrate, unsigned mixmode, unsigned bufferlength, unsigned channels, int usedirectsound);
+int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound);
 void snd_uninit(void);
 void snd_setcustommixer(void (*custommixer)(Sint32 *dest, unsigned samples));
 
@@ -36,7 +36,6 @@ static int snd_initmixer(void);
 static void snd_uninitmixer(void);
 static void snd_mixdata(Uint8 *dest, unsigned bytes);
 static void snd_mixchannels(Sint32 *dest, unsigned samples);
-static void snd_mixer(void *userdata, Uint8 *stream, int len);
 static void snd_mixer_callback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount);
 
 
@@ -222,7 +221,7 @@ int snd_init_midi() {
 }
 #endif
 
-int snd_init(unsigned mixrate, unsigned mixmode, unsigned bufferlength, unsigned channels, int usedirectsound)
+int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound)
 {
     // If user wants to re-initialize, shutdown first
 
@@ -248,7 +247,7 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned bufferlength, unsigned
 
     // Check for illegal config
 
-    if ((!mixrate) || (!bufferlength))
+    if (!mixrate)
     {
         bme_error = BME_ILLEGAL_CONFIG;
         snd_uninit();
@@ -263,18 +262,6 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned bufferlength, unsigned
     }
     spec.channels = 1;
     if (mixmode & STEREO) spec.channels = 2;
-    /*spec.samples = bufferlength * mixrate / 1000;
-    {
-        int bits = 0;
-
-        for (;;)
-        {
-            spec.samples >>= 1;
-            if (!spec.samples) break;
-            bits++;
-        }
-        spec.samples = 1 << bits;
-    }*/
 
     // Init tempo count
 
@@ -324,7 +311,11 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned bufferlength, unsigned
         snd_uninit();
         return BME_ERROR;
     }
-    // snd_buffersize = spec.size; // FIXME
+
+    int sample_frames;
+    SDL_GetAudioDeviceFormat(SDL_GetAudioStreamDevice(stream), &spec, &sample_frames);
+
+    snd_buffersize = sample_frames;
     snd_mixrate = spec.freq;
 
     // Allocate mixer tables
@@ -336,7 +327,7 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned bufferlength, unsigned
         return BME_ERROR;
     }
 
-    //SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(stream)); // FIXME
+    SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(stream));
     bme_error = BME_OK;
     return BME_OK;
 }
@@ -406,14 +397,13 @@ static int snd_initmixer(void)
 {
     snd_uninitmixer();
 
+    size_t bufSize = snd_buffersize * sizeof(Sint32);
     if (snd_mixmode & STEREO)
     {
-        snd_clipbuffer = malloc((snd_buffersize / snd_framesize) * sizeof(Sint32) * 2);
+        bufSize *= 2;
     }
-    else
-    {
-        snd_clipbuffer = malloc((snd_buffersize / snd_framesize) * sizeof(Sint32));
-    }
+
+    snd_clipbuffer = malloc(bufSize);
     if (!snd_clipbuffer) return 0;
 
     return 1;
@@ -435,16 +425,11 @@ void snd_mixer_callback(void *userdata, SDL_AudioStream *stream, int additional_
         Uint8 *data = SDL_stack_alloc(Uint8, additional_amount);
         if (data)
         {
-            snd_mixer(userdata, data, additional_amount);
+            snd_mixdata(data, additional_amount);
             SDL_PutAudioStreamData(stream, data, additional_amount);
             SDL_stack_free(data);
         }
     }
-}
-
-static void snd_mixer(void *userdata, Uint8 *stream, int len)
-{
-    snd_mixdata(stream, len);
 }
 
 static void snd_mixdata(Uint8 *dest, unsigned bytes)

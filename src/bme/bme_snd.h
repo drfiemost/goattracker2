@@ -1,6 +1,6 @@
 // Sound functions header file
 
-int snd_init(unsigned mixrate, unsigned mixmode, unsigned bufferlength, unsigned channels, int usedirectsound);
+int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound);
 void snd_uninit(void);
 void snd_setcustommixer(void (*custommixer)(Sint32 *dest, unsigned samples));
 void snd_preventdistortion(unsigned channels);

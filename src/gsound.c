@@ -81,7 +81,7 @@ void* exsidfd = NULL;
 unsigned exsidDelay = 0;
 #endif
 
-int sound_init(unsigned b, unsigned mr, unsigned writer, unsigned hardsid, unsigned m, unsigned ntsc, unsigned multiplier, unsigned catweasel, unsigned interpolate, unsigned customclockrate, unsigned exsid, float filterbias, unsigned combwaves)
+int sound_init(unsigned mr, unsigned writer, unsigned hardsid, unsigned m, unsigned ntsc, unsigned multiplier, unsigned catweasel, unsigned interpolate, unsigned customclockrate, unsigned exsid, float filterbias, unsigned combwaves)
 {
   int c;
 
@@ -253,12 +253,10 @@ int sound_init(unsigned b, unsigned mr, unsigned writer, unsigned hardsid, unsig
   playspeed = mr;
   if (playspeed < MINMIXRATE) playspeed = MINMIXRATE;
   if (playspeed > MAXMIXRATE) playspeed = MAXMIXRATE;
-  if (b < MINBUF) b = MINBUF;
-  if (b > MAXBUF) b = MAXBUF;
 
   if (firsttimeinit)
   {
-    if (!snd_init(mr, SIXTEENBIT|MONO, b, 1, 0)) return 0;
+    if (!snd_init(mr, SIXTEENBIT|MONO, 1, 0)) return 0;
     firsttimeinit = 0;
   }
   playspeed = snd_mixrate;

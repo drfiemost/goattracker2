@@ -55,7 +55,6 @@ unsigned optimizepulse = 1;
 unsigned optimizerealtime = 1;
 unsigned customclockrate = 0;
 unsigned usefinevib = 0;
-unsigned b = DEFAULTBUF;
 unsigned mr = DEFAULTMIXRATE;
 unsigned writer = 0;
 unsigned hardsid = 0;
@@ -77,7 +76,7 @@ char instrpath[MAX_PATHNAME];
 char packedpath[MAX_PATHNAME];
 char packedsongname[MAX_PATHNAME];
 
-char *programname = "$VER: GoatTracker v2.76";
+char *programname = "$VER: GoatTracker v2.77";
 
 char textbuffer[MAX_PATHNAME];
 
