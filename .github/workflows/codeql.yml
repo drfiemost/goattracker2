@@ -44,6 +44,19 @@ jobs:
         # Details on CodeQL's query packs refer to : https://docs.github.com/en/code-security/code-scanning/automatically-scanning-your-code-for-vulnerabilities-and-errors/configuring-code-scanning#using-queries-in-ql-packs
         # queries: security-extended,security-and-quality
 
+    - uses: dsaltares/fetch-gh-release-asset@master
+      with:
+        repo: 'libsidplayfp/libresidfp'
+        regex: true
+        file: "libresidfp-.*\\.tar\\.gz"
+        target: 'subdir/'
+    - name: build-lib
+      run: |
+        cd subdir
+        tar -xf libresidfp*.tar.gz
+        cd libresidfp*/.
+        ./configure --disable-dependency-tracking
+        make && sudo make install
     - run: |
         mkdir build
         cd build

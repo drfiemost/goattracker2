@@ -6,7 +6,7 @@
 
 #include <stdlib.h>
 #include <stdio.h>
-#include "residfp/SID.h"
+#include <residfp/residfp.h>
 
 #include "gsid.h"
 #include "gsound.h"
@@ -26,7 +26,7 @@ unsigned char altsidorder[] =
    0x0b,0x07,0x08,0x09,0x0a,0x0c,0x0d,
    0x12,0x0e,0x0f,0x10,0x11,0x13,0x14};
 
-reSIDfp::SID *sid = nullptr;
+reSIDfp::residfp *sid = nullptr;
 
 extern unsigned residdelay;
 extern unsigned adparam;
@@ -41,7 +41,7 @@ void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsign
 
   samplerate = speed;
 
-  if (!sid) sid = new reSIDfp::SID;
+  if (!sid) sid = new reSIDfp::residfp;
 
   switch(interpolate)
   {
@@ -81,7 +81,7 @@ void sid_init(int speed, unsigned m, unsigned ntsc, unsigned interpolate, unsign
   }
   if (m == 1)
   {
-    sid->setChipModel(reSIDfp::MOS8580);
+    sid->setChipModel(reSIDfp::CSG8580);
   }
   else
   {

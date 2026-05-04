@@ -44,24 +44,6 @@ set(GOATTRK2_SOURCES
     src/gsound.c
     src/gconsole.c
     src/gsid.cpp
-    src/residfp/Dac.cpp
-    src/residfp/EnvelopeGenerator.cpp
-    src/residfp/ExternalFilter.cpp
-    src/residfp/Filter6581.cpp
-    src/residfp/Filter8580.cpp
-    src/residfp/Filter.cpp
-    src/residfp/FilterModelConfig6581.cpp
-    src/residfp/FilterModelConfig8580.cpp
-    src/residfp/FilterModelConfig.cpp
-    src/residfp/Integrator6581.cpp
-    src/residfp/Integrator8580.cpp
-    src/residfp/OpAmp.cpp
-    src/residfp/SID.cpp
-    src/residfp/Spline.cpp
-    src/residfp/version.cc
-    src/residfp/WaveformCalculator.cpp
-    src/residfp/WaveformGenerator.cpp
-    src/residfp/resample/SincResampler.cpp
     src/asm/asmtab.c
     src/asm/chnkpool.c
     src/asm/expr.c
@@ -109,24 +91,6 @@ set(GT2RELOC_SOURCES
     src/gsound.c
     src/gconsole.c
     src/gsid.cpp
-    src/residfp/Dac.cpp
-    src/residfp/EnvelopeGenerator.cpp
-    src/residfp/ExternalFilter.cpp
-    src/residfp/Filter6581.cpp
-    src/residfp/Filter8580.cpp
-    src/residfp/Filter.cpp
-    src/residfp/FilterModelConfig6581.cpp
-    src/residfp/FilterModelConfig8580.cpp
-    src/residfp/FilterModelConfig.cpp
-    src/residfp/Integrator6581.cpp
-    src/residfp/Integrator8580.cpp
-    src/residfp/OpAmp.cpp
-    src/residfp/SID.cpp
-    src/residfp/Spline.cpp
-    src/residfp/version.cc
-    src/residfp/WaveformCalculator.cpp
-    src/residfp/WaveformGenerator.cpp
-    src/residfp/resample/SincResampler.cpp
     src/asm/asmtab.c
     src/asm/chnkpool.c
     src/asm/expr.c
@@ -264,24 +228,9 @@ if (EXSID_FOUND)
     target_link_libraries(goattrk2 ${EXSID_LIBRARY})
 endif(EXSID_FOUND)
 
-# create siddefs-fp.h for residfp
-
-include(CheckCXXSourceCompiles)
-check_cxx_source_compiles("int main() { __builtin_expect(0, 0); }" HAVE_BUILTIN_EXPECT)
-check_cxx_source_compiles("#include <cmath>\nint main() { double x = std::log1p(1.0); }" HAVE_LOG1P)
-
-macro(get_bool var)
-     if(${ARGN})
-         set(${var} 1)
-     else()
-         set(${var} 0)
-     endif()
-endmacro()
-
-get_bool(RESID_INLINING ${INLINING})
-set(RESID_INLINE "inline")
-get_bool(RESID_BRANCH_HINTS ${BRANCH_HINTS})
-get_bool(HAVE_BUILTIN_EXPECT ${HAVE_BUILTIN_EXPECT})
-get_bool(HAVE_LOG1P ${HAVE_LOG1P})
-
-configure_file(${CMAKE_SOURCE_DIR}/src/residfp/siddefs-fp.h.in ${CMAKE_BINARY_DIR}/src/residfp/siddefs-fp.h @ONLY)
+find_package(Residfp REQUIRED)
+if (Residfp_FOUND)
+    include_directories(${RESIDFP_INCLUDE_DIR})
+    target_link_libraries(goattrk2 ${RESIDFP_LIBRARY})
+    target_link_libraries(gt2reloc ${RESIDFP_LIBRARY})
+endif()

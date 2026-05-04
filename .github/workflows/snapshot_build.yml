@@ -26,7 +26,8 @@ jobs:
           mingw-w64-x86_64-toolchain
           mingw-w64-x86_64-cmake
           mingw-w64-x86_64-SDL2
-    - uses: actions/checkout@v6
+          mingw-w64-x86_64-libresidfp
+    - uses: actions/checkout@v6)
       with:
         ref: ${{ github.ref }}
     - name: Get the tag name
