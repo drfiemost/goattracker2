@@ -26,22 +26,7 @@ jobs:
           mingw-w64-x86_64-toolchain
           mingw-w64-x86_64-cmake
           mingw-w64-x86_64-SDL2
-    - uses: dsaltares/fetch-gh-release-asset@master
-      with:
-        repo: 'libsidplayfp/libresidfp'
-        regex: true
-        file: "libresidfp-.*\\.tar\\.gz"
-        target: 'subdir/'
-    - name: build-lib
-      run: |
-        cd subdir
-        export LDFLAGS="-s -Wl,-no-undefined -Wl,-O1 -static"
-        export CXXFLAGS="-O2 -march=x86-64 -fomit-frame-pointer -pipe"
-        export PKG_CONFIG="pkg-config --static"
-        tar -xf libresidfp*.tar.gz
-        cd libresidfp*/.
-        ./configure --disable-dependency-tracking --disable-shared --enable-static --with-simd=runtime
-        make && make install
+          mingw-w64-x86_64-libresidfp
     - uses: actions/checkout@v6)
       with:
         ref: ${{ github.ref }}
