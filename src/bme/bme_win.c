@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "bme_main.h"
 #include "bme_gfx.h"
 #include "bme_mou.h"
@@ -34,7 +34,7 @@ void win_setmousemode(int mode);
 int win_fullscreen = 0; // By default windowed
 int win_windowinitted = 0;
 int win_quitted = 0;
-unsigned char win_keytable[SDL_NUM_SCANCODES] = {0};
+unsigned char win_keytable[SDL_SCANCODE_COUNT] = {0};
 unsigned char win_asciikey = 0;
 unsigned win_virtualkey = 0;
 unsigned win_mousexpos = 0;
@@ -43,7 +43,7 @@ unsigned win_mousexrel = 0;
 unsigned win_mouseyrel = 0;
 unsigned win_mousebuttons = 0;
 int win_mousemode = MOUSE_FULLSCREEN_HIDDEN;
-unsigned char win_keystate[SDL_NUM_SCANCODES] = {0};
+unsigned char win_keystate[SDL_SCANCODE_COUNT] = {0};
 
 // Static variables
 
@@ -58,7 +58,7 @@ int win_openwindow(unsigned xsize, unsigned ysize, char *appname, char *icon)
 
     if (!win_windowinitted)
     {
-        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK) < 0)
+        if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_JOYSTICK))
         {
             return BME_ERROR;
         }
@@ -68,16 +68,18 @@ int win_openwindow(unsigned xsize, unsigned ysize, char *appname, char *icon)
 
     //SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
     //SDL_EnableUNICODE(1);
-    win_window = SDL_CreateWindow(appname,
-                             SDL_WINDOWPOS_UNDEFINED,
-                             SDL_WINDOWPOS_UNDEFINED,
-                             xsize, ysize,
-                             flags);
+    win_window = SDL_CreateWindow(appname, xsize, ysize, flags);
+    if (!win_window)
+    {
+        return BME_ERROR;
+    }
+    SDL_StartTextInput(win_window);
     return BME_OK;
 }
 
 void win_closewindow(void)
 {
+    SDL_StopTextInput(win_window);
     SDL_DestroyWindow(win_window);
 }
 
@@ -133,15 +135,15 @@ void win_checkmessages(void)
     {
         switch (event.type)
         {
-            case SDL_JOYBUTTONDOWN:
+            case SDL_EVENT_JOYSTICK_BUTTON_DOWN:
             joybuttons[event.jbutton.which] |= 1 << event.jbutton.button;
             break;
 
-            case SDL_JOYBUTTONUP:
+            case SDL_EVENT_JOYSTICK_BUTTON_UP:
             joybuttons[event.jbutton.which] &= ~(1 << event.jbutton.button);
             break;
 
-            case SDL_JOYAXISMOTION:
+            case SDL_EVENT_JOYSTICK_AXIS_MOTION:
             switch (event.jaxis.axis)
             {
                 case 0:
@@ -154,14 +156,14 @@ void win_checkmessages(void)
             }
             break;
 
-            case SDL_MOUSEMOTION:
+            case SDL_EVENT_MOUSE_MOTION:
             win_mousexpos = event.motion.x;
             win_mouseypos = event.motion.y;
             win_mousexrel += event.motion.xrel;
             win_mouseyrel += event.motion.yrel;
             break;
 
-            case SDL_MOUSEBUTTONDOWN:
+            case SDL_EVENT_MOUSE_BUTTON_DOWN:
             switch(event.button.button)
             {
                 case SDL_BUTTON_LEFT:
@@ -178,7 +180,7 @@ void win_checkmessages(void)
             }
             break;
 
-            case SDL_MOUSEBUTTONUP:
+            case SDL_EVENT_MOUSE_BUTTON_UP:
             switch(event.button.button)
             {
                 case SDL_BUTTON_LEFT:
@@ -195,18 +197,18 @@ void win_checkmessages(void)
             }
             break;
 
-            case SDL_QUIT:
+            case SDL_EVENT_QUIT:
             win_quitted = 1;
             break;
 
-            case SDL_TEXTINPUT:
+            case SDL_EVENT_TEXT_INPUT:
             win_asciikey = event.text.text[0];
             break;
-                
-            case SDL_KEYDOWN:
-            win_virtualkey = event.key.keysym.sym;
-            keynum = event.key.keysym.scancode;
-            if (keynum < SDL_NUM_SCANCODES)
+
+            case SDL_EVENT_KEY_DOWN:
+            win_virtualkey = event.key.key;
+            keynum = event.key.scancode;
+            if (keynum < SDL_SCANCODE_COUNT)
             {
                 if ((keynum == SDL_SCANCODE_RETURN) && ((win_keystate[SDL_SCANCODE_LALT])
                     || (win_keystate[SDL_SCANCODE_RALT])))
@@ -220,16 +222,16 @@ void win_checkmessages(void)
             }
             break;
 
-            case SDL_KEYUP:
-            keynum = event.key.keysym.scancode;
-            if (keynum < SDL_NUM_SCANCODES)
+            case SDL_EVENT_KEY_UP:
+            keynum = event.key.scancode;
+            if (keynum < SDL_SCANCODE_COUNT)
             {
                 win_keytable[keynum] = 0;
                 win_keystate[keynum] = 0;
             }
             break;
 
-            case SDL_WINDOWEVENT_RESIZED:
+            case SDL_EVENT_WINDOW_RESIZED:
             //case SDL_VIDEOEXPOSE:
             gfx_redraw = 1;
             break;
@@ -244,22 +246,22 @@ void win_setmousemode(int mode)
     switch(mode)
     {
         case MOUSE_ALWAYS_VISIBLE:
-        SDL_ShowCursor(SDL_ENABLE);
+        SDL_ShowCursor();
         break;
 
         case MOUSE_FULLSCREEN_HIDDEN:
         if (win_fullscreen)
         {
-            SDL_ShowCursor(SDL_DISABLE);
+            SDL_HideCursor();
         }
         else
         {
-            SDL_ShowCursor(SDL_ENABLE);
+            SDL_ShowCursor();
         }
         break;
 
         case MOUSE_ALWAYS_HIDDEN:
-        SDL_ShowCursor(SDL_DISABLE);
+        SDL_HideCursor();
         break;
     }
 }

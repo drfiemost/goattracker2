@@ -15,7 +15,7 @@
 #  include <rtmidi/rtmidi_c.h>
 #endif
 
-#include <SDL.h>
+#include <SDL3/SDL.h>
 #include "bme_main.h"
 #include "bme_cfg.h"
 #include "bme_win.h"
@@ -27,7 +27,7 @@ typedef jack_default_audio_sample_t sample_t;
 #endif
 
 // Prototypes
-int snd_init(unsigned mixrate, unsigned mixmode, unsigned bufferlength, unsigned channels, int usedirectsound);
+int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound);
 void snd_uninit(void);
 void snd_setcustommixer(void (*custommixer)(Sint32 *dest, unsigned samples));
 
@@ -36,7 +36,8 @@ static int snd_initmixer(void);
 static void snd_uninitmixer(void);
 static void snd_mixdata(Uint8 *dest, unsigned bytes);
 static void snd_mixchannels(Sint32 *dest, unsigned samples);
-static void snd_mixer(void *userdata, Uint8 *stream, int len);
+static void snd_mixer_callback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount);
+
 
 // Lowlevel mixing functions
 static void snd_clearclipbuffer(Sint32 *clipbuffer, unsigned clipsamples);
@@ -63,8 +64,8 @@ static unsigned snd_framesize;
 static unsigned snd_previouschannels = 0xffffffff;
 static int snd_atexit_registered = 0;
 static Sint32 *snd_clipbuffer = NULL;
-static SDL_AudioSpec desired;
-static SDL_AudioSpec obtained;
+SDL_AudioStream *stream = NULL;
+static SDL_AudioSpec spec;
 
 #ifdef USE_JACK
 static int use_jack = 1;
@@ -220,7 +221,7 @@ int snd_init_midi() {
 }
 #endif
 
-int snd_init(unsigned mixrate, unsigned mixmode, unsigned bufferlength, unsigned channels, int usedirectsound)
+int snd_init(unsigned mixrate, unsigned mixmode, unsigned channels, int usedirectsound)
 {
     // If user wants to re-initialize, shutdown first
 
@@ -246,44 +247,29 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned bufferlength, unsigned
 
     // Check for illegal config
 
-    if ((!mixrate) || (!bufferlength))
+    if (!mixrate)
     {
         bme_error = BME_ILLEGAL_CONFIG;
         snd_uninit();
         return BME_ERROR;
     }
 
-    desired.freq = mixrate;
-    desired.format = AUDIO_U8;
+    spec.freq = mixrate;
+    spec.format = SDL_AUDIO_U8;
     if (mixmode & SIXTEENBIT)
     {
-        desired.format = AUDIO_S16SYS;
+        spec.format = SDL_AUDIO_S16;
     }
-    desired.channels = 1;
-    if (mixmode & STEREO) desired.channels = 2;
-    desired.samples = bufferlength * mixrate / 1000;
-    {
-        int bits = 0;
-
-        for (;;)
-        {
-            desired.samples >>= 1;
-            if (!desired.samples) break;
-            bits++;
-        }
-        desired.samples = 1 << bits;
-    }
-
-    desired.callback = snd_mixer;
-    desired.userdata = NULL;
+    spec.channels = 1;
+    if (mixmode & STEREO) spec.channels = 2;
 
     // Init tempo count
 
     snd_bpmcount = 0;
 
-    SDL_PauseAudio(1);
+    stream = SDL_OpenAudioDeviceStream(SDL_AUDIO_DEVICE_DEFAULT_PLAYBACK, &spec, snd_mixer_callback, NULL);
 
-    if (SDL_OpenAudio(&desired, &obtained))
+    if (!stream)
     {
         bme_error = BME_OPEN_ERROR;
         snd_uninit();
@@ -294,27 +280,27 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned bufferlength, unsigned
     snd_mixmode = 0;
     snd_framesize = 1;
 
-    if (obtained.channels == 2)
+    if (spec.channels == 2)
     {
         snd_mixmode |= STEREO;
         snd_framesize <<= 1;
     }
 
     // (Re)allocate channels if necessary
-    if (snd_initchannels(obtained.channels) != BME_OK) {
+    if (snd_initchannels(spec.channels) != BME_OK) {
         return BME_ERROR;
     }
 
-    if ((SDL_AUDIO_BITSIZE(obtained.format) == 16) &&
-       SDL_AUDIO_ISSIGNED(obtained.format) &&
-       SDL_AUDIO_ISINT(obtained.format))
+    if ((SDL_AUDIO_BITSIZE(spec.format) == 16) &&
+       SDL_AUDIO_ISSIGNED(spec.format) &&
+       SDL_AUDIO_ISINT(spec.format))
     {
         snd_mixmode |= SIXTEENBIT;
         snd_framesize <<= 1;
     }
-    else if ((SDL_AUDIO_BITSIZE(obtained.format) == 32) &&
-       SDL_AUDIO_ISSIGNED(obtained.format) &&
-       SDL_AUDIO_ISFLOAT(obtained.format))
+    else if ((SDL_AUDIO_BITSIZE(spec.format) == 32) &&
+       SDL_AUDIO_ISSIGNED(spec.format) &&
+       SDL_AUDIO_ISFLOAT(spec.format))
     {
         snd_mixmode |= FLOAT32BIT;
         snd_framesize <<= 2;
@@ -325,8 +311,12 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned bufferlength, unsigned
         snd_uninit();
         return BME_ERROR;
     }
-    snd_buffersize = obtained.size;
-    snd_mixrate = obtained.freq;
+
+    int sample_frames;
+    SDL_GetAudioDeviceFormat(SDL_GetAudioStreamDevice(stream), &spec, &sample_frames);
+
+    snd_buffersize = sample_frames;
+    snd_mixrate = spec.freq;
 
     // Allocate mixer tables
 
@@ -337,8 +327,7 @@ int snd_init(unsigned mixrate, unsigned mixmode, unsigned bufferlength, unsigned
         return BME_ERROR;
     }
 
-    SDL_PauseAudio(0);
-
+    SDL_ResumeAudioDevice(SDL_GetAudioStreamDevice(stream));
     bme_error = BME_OK;
     return BME_OK;
 }
@@ -389,7 +378,7 @@ void snd_uninit(void)
 #endif
         )
     {
-        SDL_CloseAudio();
+        SDL_DestroyAudioStream(stream);
         snd_sndinitted = 0;
     }
     snd_uninitmixer();
@@ -408,14 +397,13 @@ static int snd_initmixer(void)
 {
     snd_uninitmixer();
 
+    size_t bufSize = snd_buffersize * sizeof(Sint32);
     if (snd_mixmode & STEREO)
     {
-        snd_clipbuffer = malloc((snd_buffersize / snd_framesize) * sizeof(Sint32) * 2);
+        bufSize *= 2;
     }
-    else
-    {
-        snd_clipbuffer = malloc((snd_buffersize / snd_framesize) * sizeof(Sint32));
-    }
+
+    snd_clipbuffer = malloc(bufSize);
     if (!snd_clipbuffer) return 0;
 
     return 1;
@@ -430,9 +418,18 @@ static void snd_uninitmixer(void)
     }
 }
 
-static void snd_mixer(void *userdata, Uint8 *stream, int len)
+void snd_mixer_callback(void *userdata, SDL_AudioStream *stream, int additional_amount, int total_amount)
 {
-    snd_mixdata(stream, len);
+    if (additional_amount > 0)
+    {
+        Uint8 *data = SDL_stack_alloc(Uint8, additional_amount);
+        if (data)
+        {
+            snd_mixdata(data, additional_amount);
+            SDL_PutAudioStreamData(stream, data, additional_amount);
+            SDL_stack_free(data);
+        }
+    }
 }
 
 static void snd_mixdata(Uint8 *dest, unsigned bytes)

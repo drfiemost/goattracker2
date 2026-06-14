@@ -16,9 +16,6 @@
 
 #define MINMIXRATE 11025
 #define MAXMIXRATE 48000
-#define MINBUF 20
-#define MAXBUF 2000
-#define DEFAULTBUF 100
 #define DEFAULTMIXRATE 48000
 
 #define PALFRAMERATE 50
@@ -28,7 +25,7 @@
 
 #define MIXBUFFERSIZE 65536
 
-int sound_init(unsigned b, unsigned mr, unsigned writer, unsigned hardsid, unsigned m, unsigned ntsc, unsigned multiplier, unsigned catweasel, unsigned interpolate, unsigned customclockrate, unsigned exsid, float filterbias, unsigned combwaves);
+int sound_init(unsigned mr, unsigned writer, unsigned hardsid, unsigned m, unsigned ntsc, unsigned multiplier, unsigned catweasel, unsigned interpolate, unsigned customclockrate, unsigned exsid, float filterbias, unsigned combwaves);
 void sound_uninit(void);
 void sound_suspend(void);
 void sound_flush(void);
