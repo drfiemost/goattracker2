@@ -491,6 +491,7 @@ int main(int argc, char **argv)
   configfile = fopen(filename, "wt");
   if (configfile)
   {
+    unsigned dummy = 0;
     fprintf(configfile, ";------------------------------------------------------------------------------\n"
                         ";GT2 config file. Rows starting with ; are comments. Hexadecimal parameters are\n"
                         ";to be preceded with $ and decimal parameters with nothing.                    \n"
@@ -529,6 +530,7 @@ int main(int argc, char **argv)
                         ";Special note names (2 chars for every note in an octave/cycle)\n%s\n\n"
                         ";Path to a Scala tuning file .scl\n%s\n\n"
                         ";Use exSID (0 = off, 1 = on)\n%d\n\n",
+    dummy,
     mr,
     hardsid,
     sidmodel,
